@@ -25,7 +25,20 @@ FiNePPL (aka this group) was created as a trial for an idea, that FiNePPL can ma
 - [Emo] Sentiment Analysis: https://bitbucket.org/fineppl/fine-sentiment
 - [Algo] Algorithmic Trading: https://bitbucket.org/fineppl/fine-algos
 
+
 ## cross-cutting ideas
+
+### prioritized commodities
+
+> stated here as a point of reference, intended to be used in multiple projects.
+
+Commodity could be a stock unit, option of the following companies.
+
+- Amazon
+- Microsoft
+- Alphabet
+- Apple
+- Facebook
 
 ### signal aggregation across projects
 
