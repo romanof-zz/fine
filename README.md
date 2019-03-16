@@ -21,9 +21,9 @@ FiNePPL (aka this group) was created as a trial for an idea, that FiNePPL can ma
 
 ## projects
 
-- [Bet] FiNeBet: https://bitbucket.org/fineppl/fine-bets/src
-- [Emo] Sentiment Analysis: https://bitbucket.org/fineppl/fine-sentiment/src
-- [Algo] Algorithmic Trading: https://bitbucket.org/fineppl/fine-algos/src
+- [Bet] FiNeBet: https://bitbucket.org/fineppl/fine-bets
+- [Emo] Sentiment Analysis: https://bitbucket.org/fineppl/fine-sentiment
+- [Algo] Algorithmic Trading: https://bitbucket.org/fineppl/fine-algos
 
 ## cross-cutting ideas
 
