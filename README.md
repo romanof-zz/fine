@@ -19,11 +19,7 @@ FiNePPL (aka this group) was created as a trial for an idea, that FiNePPL can ma
 - **privacy.** FiNePPL is a private group, shouldn't be discussed outside of FiNe (except with direct family members).
     - _immediate termination_
 
-## project tracking
-
-FiNePPL would likely work on multiple projects simultaneously. I don't think it makes sense to track them in separate Trello boards (at least while group is small). So lets use one in this project, and tag each individual project with tags listed bellow in **[...]**
-
-### projects
+## projects
 
 - [Bet] FiNeBet: https://bitbucket.org/fineppl/fine-bets/src
 - [Emo] Sentiment Analysis: https://bitbucket.org/fineppl/fine-sentiment/src
