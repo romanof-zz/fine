@@ -28,6 +28,15 @@ FiNePPL (aka this group) was created as a trial for an idea, that FiNePPL can ma
 
 ## cross-cutting
 
+### stock decisions tracking
+
+i started tracking financial bets that im making with an idea of gathering data for statistical analysis.
+And also receiving feedback on pending decisions.
+
+- active bets: https://bitbucket.org/fineppl/fine-bets/src/master/active-bets
+- archived bets : https://bitbucket.org/fineppl/fine-bets/src/master/archive
+- pending: - active bets: https://bitbucket.org/fineppl/fine-bets/src/master/gn.md
+
 ### prioritized commodities
 
 Commodity could be a stock unit, option of the following companies.
