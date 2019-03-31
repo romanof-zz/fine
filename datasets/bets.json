@@ -1,0 +1,33 @@
+{
+  "description": "buy options of Amazon, Microsoft, Apple, Google, Facebook on 04/12.",
+  "decision for participant": "pick call/put for each option.",
+  "exit": "individual x2",
+  "commodity": {
+    "type": "call/put option",
+    "stock price at purchase time": "?",
+    "purchase date": "2018/04/12",
+    "expiration date": "?",
+    "price": "200/each?",
+  },
+  "motivation": "
+    - all those stocks tend to react to earning calls. by buying 2w before and selling 2w after earning data -> you can utilize this reaction if you make the right call
+    - six instead of one to diversify the risk.
+    - all those companies report during the same week. so that allows to make the bet as a single event in time and diversify the risk.
+    - i did it ones for 1K$, but i think that spread could have been bought with half the price -> so that's where 500$ come from.",
+  "status": "pending",
+},
+
+{
+  "description": "buy put option of Microsoft cause it hit 52w high.",
+  "decision for participant": "buy?",
+  "commodity": {
+    "type": "MSFT PUT $110",
+    "stock price at purchase time": 116,
+    "purchase date": "2018/03/17",
+    "expiration date": "2018/04/26",
+    "price": 99,
+  },
+  "exit": "+30%",
+  "motivation": "MSFT hit 52w high and expected to go down. I guess that 30% fall is a safe bet for exit. I think 1m is enough to observe this bet.",
+  "status": "active",
+},
