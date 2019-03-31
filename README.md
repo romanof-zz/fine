@@ -21,8 +21,8 @@ FiNePPL (aka this group) was created as a trial for an idea, that FiNePPL can ma
 
 ## ideas
 
-- bet game: https://bitbucket.org/fineppl/fine/src/master/bets.md
-- sentiment bots: https://bitbucket.org/fineppl/fine/src/master/sentiment.md
+- [bet game](https://bitbucket.org/fineppl/fine/src/master/bets.md)
+- [sentiment bots](https://bitbucket.org/fineppl/fine/src/master/sentiment.md)
 
 ## lib
 
@@ -33,13 +33,13 @@ FiNePPL (aka this group) was created as a trial for an idea, that FiNePPL can ma
 - [A Deep Neural-Network Based Stock Trading System Based on Evolutionary Optimized Technical Analysis Parameters](https://reader.elsevier.com/reader/sd/pii/S1877050917318252?token=2F1D2BCB48BC93FDDF5A0420786430DC861D473757ECCBE4A7A9D51B4D32B480F02B2F012C0EB77F90097E09ACE67C81)
 - [A hybrid stock trading framework integrating technical analysis with machine learning techniques](https://reader.elsevier.com/reader/sd/pii/S2405918815300179?token=B7451098336A73B508C76AF6888D156E687833B4077038DB7F3E6F9643AD8855C6B098233220904A4D3CC5CC1336AAEC)
 - 🔥[Forecasting financial time series using a lowcomplexity recurrent neural network andevolutionary learning approach](https://reader.elsevier.com/reader/sd/pii/S1319157815000944?token=F38D985CB260B0D4BB66F5D3466A0784C79BFB291005935F090DD8E3A7D37EF54E455704DDC1AF7E62AA681EBFF060B4)
-- book on predictions: https://otexts.com/fpp2/
-- [rus] Технический анализ: https://books.google.com/books?id=-43ivEJMrOcC
+- [Forecasting: Principles and Practice](https://otexts.com/fpp2/)
+- [RUS: Технический анализ](https://books.google.com/books?id=-43ivEJMrOcC)
 
 ## links
 
-- graphic designer for crypto trading algos: https://mudrex.com
-- link about weird algo from reddit: https://www.reddit.com/r/stocks/comments/b23jpd/im_an_astrophysicist_and_i_perform_my_own_simple/
-- all weather fund: https://www.iwillteachyoutoberich.com/blog/all-weather-portfolio/
-- portfolio risk distribution article: https://macro-ops.com/ray-dalio-portfolio-allocation-strategy-holy-grail/
-- options trading: http://www.theoptionsguide.com/
+- [graphic designer for crypto trading algos](https://mudrex.com)
+- [weird algo](https://www.reddit.com/r/stocks/comments/b23jpd/im_an_astrophysicist_and_i_perform_my_own_simple/)
+- [all weather fund](https://www.iwillteachyoutoberich.com/blog/all-weather-portfolio/)
+- [portfolio risk distribution article](https://macro-ops.com/ray-dalio-portfolio-allocation-strategy-holy-grail/)
+- [options trading](http://www.theoptionsguide.com/)
