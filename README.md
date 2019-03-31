@@ -21,32 +21,8 @@ FiNePPL (aka this group) was created as a trial for an idea, that FiNePPL can ma
 
 ## ideas
 
-### stock decisions tracking
-
-- active bets: https://bitbucket.org/fineppl/fine-bets/src/master/active-bets
-- archived bets : https://bitbucket.org/fineppl/fine-bets/src/master/archive
-- pending: - active bets: https://bitbucket.org/fineppl/fine-bets/src/master/gn.md
-
-### signal aggregation across projects
-
-if trading decision of various projects tracked in the same data format, like
-
-```
-- project id
-- financial commodity id
-- timestamp
-- decision sell / buy
-- confidence level
-```
-
-we can train a statistical model, that would assign weights to specific FiNe projects.
-and would be making a aggregated sell/buy decision, when overall model confidence reaches predetermined threshold.
-
-they you give this model a certain budget a let it trade.
-goal for the model could be to beat SP500 for a given month.
-
-trading data that model produces can be also re-annotated and fed back to the training set.
-
+- bet game: https://bitbucket.org/fineppl/fine/src/master/bets.md
+- sentiment bots: https://bitbucket.org/fineppl/fine/src/master/sentiment.md
 
 ## lib
 
@@ -58,10 +34,12 @@ trading data that model produces can be also re-annotated and fed back to the tr
 - [A hybrid stock trading framework integrating technical analysis with machine learning techniques](https://reader.elsevier.com/reader/sd/pii/S2405918815300179?token=B7451098336A73B508C76AF6888D156E687833B4077038DB7F3E6F9643AD8855C6B098233220904A4D3CC5CC1336AAEC)
 - 🔥[Forecasting financial time series using a lowcomplexity recurrent neural network andevolutionary learning approach](https://reader.elsevier.com/reader/sd/pii/S1319157815000944?token=F38D985CB260B0D4BB66F5D3466A0784C79BFB291005935F090DD8E3A7D37EF54E455704DDC1AF7E62AA681EBFF060B4)
 - book on predictions: https://otexts.com/fpp2/
+- [rus] Технический анализ: https://books.google.com/books?id=-43ivEJMrOcC
 
 ## links
 
 - graphic designer for crypto trading algos: https://mudrex.com
 - link about weird algo from reddit: https://www.reddit.com/r/stocks/comments/b23jpd/im_an_astrophysicist_and_i_perform_my_own_simple/
 - all weather fund: https://www.iwillteachyoutoberich.com/blog/all-weather-portfolio/
-- portfolio risk distribution article:`` https://macro-ops.com/ray-dalio-portfolio-allocation-strategy-holy-grail/
+- portfolio risk distribution article: https://macro-ops.com/ray-dalio-portfolio-allocation-strategy-holy-grail/
+- options trading: http://www.theoptionsguide.com/
