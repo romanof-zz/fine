@@ -24,11 +24,7 @@ FiNePPL (aka this group) was created as a trial for an idea, that FiNePPL can ma
 - [bet game](https://bitbucket.org/fineppl/fine/src/master/bets.md)
 - [sentiment bots](https://bitbucket.org/fineppl/fine/src/master/sentiment.md)
 
-## lib
-
-> it's a set of materials, no implied order or connections.
-
-### books:
+## books
 
 - [A Deep Neural-Network Based Stock Trading System Based on Evolutionary Optimized Technical Analysis Parameters](https://reader.elsevier.com/reader/sd/pii/S1877050917318252?token=2F1D2BCB48BC93FDDF5A0420786430DC861D473757ECCBE4A7A9D51B4D32B480F02B2F012C0EB77F90097E09ACE67C81)
 - [A hybrid stock trading framework integrating technical analysis with machine learning techniques](https://reader.elsevier.com/reader/sd/pii/S2405918815300179?token=B7451098336A73B508C76AF6888D156E687833B4077038DB7F3E6F9643AD8855C6B098233220904A4D3CC5CC1336AAEC)

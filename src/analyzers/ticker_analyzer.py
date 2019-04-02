@@ -19,32 +19,36 @@ class TickerAnalyzer:
         return min(period_list, key=lambda ticker: getattr(ticker, field))
 
     def analyze(self, field, period, function):
-        count = 0
-        count_rebound_1d = 0
-        count_rebound_3d = 0
-        count_rebound_7d = 0
+        analysis = {}
+        analysis["count"] = 0
 
         for idx, ticker in enumerate(self.tickers):
             try:
                 func_ticker = getattr(self, function)(ticker.date, int(period), field)
                 result = getattr(func_ticker, field)
 
-                if function == "max" and getattr(ticker, field) > result:
-                    count += 1
-                    if getattr(self.tickers[idx+1], field) < result: count_rebound_1d += 1
-                    if getattr(self.tickers[idx+3], field) < result: count_rebound_3d += 1
-                    if getattr(self.tickers[idx+7], field) < result: count_rebound_7d += 1
-                if function == "min" and getattr(ticker, field) < result:
-                    count += 1
-                    if getattr(self.tickers[idx+1], field) > result: count_rebound_1d += 1
-                    if getattr(self.tickers[idx+3], field) > result: count_rebound_3d += 1
-                    if getattr(self.tickers[idx+7], field) > result: count_rebound_7d += 1
+                if ((function == "max" and getattr(ticker, field) > result) or
+                    (function == "min" and getattr(ticker, field) < result)):
+
+                    analysis["count"] += 1
+
+                    for offset in [1, 3, 7, 14, 30]:
+                        if not offset in analysis:
+                            analysis[offset] = {}
+                            analysis[offset]["sum_lo_percent_change"] = 0.0
+                            analysis[offset]["sum_hi_percent_change"] = 0.0
+                            analysis[offset]["lo_count"] = 0
+                            analysis[offset]["hi_count"] = 0
+
+                        change = (getattr(self.tickers[idx+offset], field) - result)
+                        if getattr(self.tickers[idx+offset], field) >= result:
+                            analysis[offset]["sum_hi_percent_change"] += change/result
+                            analysis[offset]["hi_count"] += 1
+                        else:
+                            analysis[offset]["sum_lo_percent_change"] += change/result
+                            analysis[offset]["lo_count"] += 1
+
             except (IndexError, ValueError):
                 next
 
-        return {
-            "count": count,
-            "count_rebound_1d": count_rebound_1d,
-            "count_rebound_3d": count_rebound_3d,
-            "count_rebound_7d": count_rebound_7d,
-        }
+        return analysis
