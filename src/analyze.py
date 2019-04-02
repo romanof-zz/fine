@@ -1,8 +1,8 @@
 import argparse
 import os.path
 
-from helpers.ticker_parser import TickerParser
-from analyzers.ticker_analyzer import TickerAnalyzer
+from ticker.parsers import TickerParser
+from ticker.analyzers import TickerAnalyzer
 
 ROOT = path = os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
 

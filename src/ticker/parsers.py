@@ -1,5 +1,5 @@
 import csv
-from models.ticker import Ticker
+from .models import Ticker
 
 class TickerParser:
     def __init__(self, root):
