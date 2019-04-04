@@ -1,72 +1,115 @@
+import sys
 import datetime
-
-class TickerAnalysisResult:
-    def __init__(self, tickers):
-        self.tickers = tickers
-        self.count = 0
-        self.frames = [1, 3, 7, 14, 30]
-        self.stats = {}
-        for i in self.frames:
-            self.stats[i] = TickerAnalysisStats()
-
-    def __str__(self):
-        ret = "total event count: {cnt}\n".format(cnt=self.count)
-        for offset in self.frames:
-            ret += "changes after {o} days:\n".format(o=offset)
-            ret += "  higher: avg price change: {hpp:.2f}%; with events: {he} ({hep:.2f}%)\n".format(
-                hpp=self.stats[offset].sum_hi_percent_change / self.stats[offset].hi_count * 100,
-                he=self.stats[offset].hi_count,
-                hep=self.stats[offset].hi_count / self.count * 100)
-            ret += "  lower: avg price change: {lpp:.2f}%; with events: {le} ({lep:.2f}%)\n".format(
-                lpp=self.stats[offset].sum_lo_percent_change / self.stats[offset].lo_count * 100,
-                le=self.stats[offset].lo_count,
-                lep=self.stats[offset].lo_count / self.count * 100)
-
-        return ret
 
 class TickerAnalysisStats:
     def __init__(self):
         self.sum_lo_percent_change = 0.0
         self.sum_hi_percent_change = 0.0
+        self.lo_percent_change = 0.0
+        self.hi_percent_change = 0.0
         self.lo_count = 0
         self.hi_count = 0
+        self.hi_max = 0.0
+        self.hi_min = sys.maxsize
+        self.lo_max = 0.0
+        self.lo_min = sys.maxsize
+
+class TickerAnalysisResult:
+    RESULT_FRAMES = [1, 3, 7, 14, 30]
+
+    def __init__(self, tickers):
+        self.tickers = tickers
+        self.count = 0
+        self.ticker_results = {}
+        self.stats = {}
+        for i in self.RESULT_FRAMES:
+            self.stats[i] = TickerAnalysisStats()
+
+    def add_ticker(self, offset):
+        self.ticker_results[self.count] = []
+        for idx in range(offset, offset + 31):
+            try:
+                self.ticker_results[self.count].append(self.tickers[idx])
+            except IndexError:
+                break
+        self.count += 1
+
+    def calculate_stats(self):
+        for k in self.ticker_results:
+            for idx in self.RESULT_FRAMES:
+                tset = self.ticker_results[k]
+                percent_change = abs(tset[idx].adj_close - tset[0].adj_close) / tset[0].adj_close
+                if tset[0].adj_close < tset[idx].adj_close:
+                    self.stats[idx].sum_hi_percent_change += percent_change
+                    self.stats[idx].hi_count += 1
+                    if self.stats[idx].hi_max < percent_change: self.stats[idx].hi_max = percent_change
+                    if self.stats[idx].hi_min > percent_change: self.stats[idx].hi_min = percent_change
+                else:
+                    self.stats[idx].sum_lo_percent_change += percent_change
+                    self.stats[idx].lo_count += 1
+                    if self.stats[idx].lo_max < percent_change: self.stats[idx].lo_max = percent_change
+                    if self.stats[idx].lo_min > percent_change: self.stats[idx].lo_min = percent_change
+
+        for idx in self.RESULT_FRAMES:
+            if self.stats[idx].lo_count:
+                self.stats[idx].lo_percent_change = self.stats[idx].sum_lo_percent_change / self.stats[idx].lo_count
+            if self.stats[idx].hi_count:
+                self.stats[idx].hi_percent_change = self.stats[idx].sum_hi_percent_change / self.stats[idx].hi_count
+
+
+    def __str__(self):
+        self.calculate_stats()
+
+        ret = "total event count: {cnt}\n".format(cnt=self.count)
+        for offset in self.RESULT_FRAMES:
+            ret += "changes after {o} days:\n".format(o=offset)
+            ret += "  higher changes: avg: {havg:.2f}%; max: {hmax:.2f}%; min: {hmin:.2f}%; with events: {he} ({hep:.2f}%)\n".format(
+                havg=self.stats[offset].hi_percent_change * 100,
+                hmax=self.stats[offset].hi_max * 100,
+                hmin=self.stats[offset].hi_min * 100,
+                he=self.stats[offset].hi_count,
+                hep=self.stats[offset].hi_count / self.count * 100)
+            ret += "  lower changes: avg: -{lavg:.2f}%; max: -{lmax:.2f}%; min: -{lmin:.2f}%; with events: {le} ({lep:.2f}%)\n".format(
+                lavg=self.stats[offset].lo_percent_change * 100,
+                lmax=self.stats[offset].lo_max * 100,
+                lmin=self.stats[offset].lo_min * 100,
+                le=self.stats[offset].lo_count,
+                lep=self.stats[offset].lo_count / self.count * 100)
+
+        return ret
 
 class TickerAnalyzer:
     def __init__(self, tickers):
         tickers.sort(key=lambda t: t.date)
         self.tickers = tickers
-        self.result = TickerAnalysisResult(tickers)
 
-    def max(self, date, period_in_days, field):
-        start_date = date - datetime.timedelta(days=period_in_days)
+    def high(self, ticker, period):
+        start_date = ticker.date - datetime.timedelta(days=period)
         if self.tickers[0].date > start_date: raise ValueError("invalid period")
-        period_list = list(filter(lambda ticker: ticker.date >= start_date and ticker.date < date, self.tickers))
-        return max(period_list, key=lambda ticker: getattr(ticker, field))
 
-    def min(self, date, period_in_days, field):
-        start_date = date - datetime.timedelta(days=period_in_days)
+        max_high = 0
+        for t in self.tickers:
+            if t.date >= start_date and t.date < ticker.date and max_high < t.high:
+                max_high = t.high
+
+        return ticker.open < max_high and ticker.high > max_high
+
+    def low(self, ticker, period):
+        start_date = ticker.date - datetime.timedelta(days=period)
         if self.tickers[0].date > start_date: raise ValueError("invalid period")
-        period_list = list(filter(lambda ticker: ticker.date >= start_date and ticker.date < date, self.tickers))
-        return min(period_list, key=lambda ticker: getattr(ticker, field))
 
-    def analyze(self, field, period, function):
+        min_low = sys.maxsize
+        for t in self.tickers:
+            if t.date >= start_date and t.date < ticker.date and min_low > t.low:
+                min_low = t.low
+
+        return ticker.open > min_low and ticker.low < min_low
+
+    def analyze(self, period, function):
+        result = TickerAnalysisResult(self.tickers)
         for idx, ticker in enumerate(self.tickers):
             try:
-                func_ticker = getattr(self, function)(ticker.date, int(period), field)
-                result = getattr(func_ticker, field)
-
-                if ((function == "max" and getattr(ticker, field) > result) or
-                    (function == "min" and getattr(ticker, field) < result)):
-
-                    self.result.count += 1
-                    for offset in self.result.frames:
-                        change = (getattr(self.tickers[idx+offset], field) - result)
-                        if getattr(self.tickers[idx+offset], field) >= result:
-                            self.result.stats[offset].sum_hi_percent_change += change/result
-                            self.result.stats[offset].hi_count += 1
-                        else:
-                            self.result.stats[offset].sum_lo_percent_change += change/result
-                            self.result.stats[offset].lo_count += 1
-
-            except (IndexError, ValueError):
+                if getattr(self, function)(ticker, int(period)): result.add_ticker(idx)
+            except (ValueError):
                 next
+        return result
