@@ -18,6 +18,25 @@
 },
 
 {
+  "description": "buy call option of LAM Research, cause DeutcheBank Analytics predict it'll grow buy 5% in a next week.",
+  "decision for participant": "buy?",
+  "commodity": {
+    "type": "LRCX $200 Call",
+    "stock price at purchase time": 190,
+    "purchase date": "2018/04/09",
+    "expiration date": "2018/04/18",
+    "price": 87,
+  },
+  "exit": "eval on 2018/04/12",
+  "motivation": "
+   - there's analytics on DeutscheBank and RBC that indicates this stock growth by 5% within next couple of weeks.
+   - current price 190 * 0.05 ~= 10. expected price 190 + 10 = 200.
+   - wait till middle date between purchase date and expiration date and sell if stock isn't growing",
+  "status": "active",
+  "result_reason": null,
+},
+
+{
   "description": "buy put option of Microsoft cause it hit 52w high.",
   "decision for participant": "buy?",
   "commodity": {
@@ -29,5 +48,6 @@
   },
   "exit": "+30%",
   "motivation": "MSFT hit 52w high and expected to go down. I guess that 30% fall is a safe bet for exit. I think 1m is enough to observe this bet.",
-  "status": "active",
+  "status": "failed",
+  "result_reason": "stock didn't react to 52w high as was expected."
 },
