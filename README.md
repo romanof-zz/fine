@@ -3,25 +3,25 @@ FiNePPL is a group of people, who enjoy working together and strive to make a de
 - Joy of creating something together comes before profit. We believe that, if smart people do something fun - financial results will come eventually. But first we strive to create something great and enjoy the ride as a group.
 - We created this group as an alternative to today's usual forms of employment. So it's essential, that we enjoy working together in such manner. And we believe it starts from mutual respect and effective communication.
 - As this group is meant as a self-organizing unit. We believe that smart people are capable of exercising high-degree of self-control. There's intentionally no individual to control progress and commitment to the group. It's essential to actively participate and contribute autonomously and it would only be regulated by simple rules.
-- As this group doesn't set profit as primary goal - it becomes important to keep it private, so it wouldn't be disruptive to professional life of its members outside the group. This might change, if we get to the point of financial sustainability.
+- As this group doesn't set profit as a primary goal, it becomes fundamental to keep it private, so it wouldn't be disruptive to professional life of its members outside the group. This might change, if we get to the point of financial sustainability.
 
 These guiding principles, along with principles of a typical worker cooperative, inspired a simple set of rules (described below). They're meant to regulate this group for now.
 
 ## basic rules
 
-  - **equality.** we treat members with respect and as equals.
+- **contribute.** everyone needs to contribute in order to benefit.
+    - _termination after 1 month with no contributions to FiNePPL repositories_
+- **respect everyone as yourself.** we treat members with respect and as equals.
     - _when 50%+1 members of the group agree and every group member is aware, they can add new members to the group_
     - _when 100% members of the group agree, they can change these rules_
     - _when 100%-1 members of the group agree to terminate a member, they can do so_
-- **contribute.** everyone needs to contribute in order to benefit.
-    - _termination after 1 month with no code contributions to this repository_
-- **security.** keep FiNePPL artifacts secure.
-    - _termination, if violation was done consciously_
-- **privacy.** FiNePPL is a private group and should not be discussed outside. Exceptions: (1) direct family and (2) pitch to potential participants, to gauge their interest. Group can be discussed, without disclosing specific artifacts, members, metrics and results.
+- **keep it quiet.** FiNePPL is a private group and should not be discussed outside. Exceptions: (1) direct family and (2) pitch to potential participants, to gauge their interest. Group can be discussed without disclosing specific artifacts, members, metrics and results.
     - _immediate termination_
+
 
 ## ideas
 
+- [tickers analysis](https://bitbucket.org/fineppl/fine/src/master/src/analyze.py)
 - [bet game](https://bitbucket.org/fineppl/fine/src/master/bets.md)
 - [sentiment bots](https://bitbucket.org/fineppl/fine/src/master/sentiment.md)
 
