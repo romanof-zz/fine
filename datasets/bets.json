@@ -1,24 +1,24 @@
 {
-  "description": "buy options of Amazon, Microsoft, Apple, Google, Facebook on 04/12.",
-  "decision for participant": "pick call/put for each option.",
-  "exit": "individual x2",
+  "description": "buy call option of Mercury.",
+  "decision for participant": "buy?",
   "commodity": {
-    "type": "call/put option",
-    "stock price at purchase time": "?",
-    "purchase date": "2018/04/12",
-    "expiration date": "?",
-    "price": "200/each?",
+    "type": "MRCY $70 Call",
+    "stock price at purchase time": 64.95,
+    "purchase date": "2018/04/09",
+    "expiration date": "2018/04/18",
+    "price": 10,
   },
+  "exit": "eval on 2018/04/12",
   "motivation": "
-    - all those stocks tend to react to earning calls. by buying 2w before and selling 2w after earning data -> you can utilize this reaction if you make the right call
-    - six instead of one to diversify the risk.
-    - all those companies report during the same week. so that allows to make the bet as a single event in time and diversify the risk.
-    - i did it ones for 1K$, but i think that spread could have been bought with half the price -> so that's where 500$ come from.",
-  "status": "pending",
+   - WSJ: Trump announced plans to invest 5B$ into military spending.
+   - Mercury's business is to build and supply parts for military airplanes.
+   - It also aligns with Goverment support for Boeng going through hard times, so investments might be dirrected to military aircrafts.",
+  "status": "active",
+  "result_reason": null,
 },
 
 {
-  "description": "buy call option of LAM Research, cause DeutcheBank Analytics predict it'll grow buy 5% in a next week.",
+  "description": "buy call option of LAM Research.",
   "decision for participant": "buy?",
   "commodity": {
     "type": "LRCX $200 Call",
@@ -49,5 +49,25 @@
   "exit": "+30%",
   "motivation": "MSFT hit 52w high and expected to go down. I guess that 30% fall is a safe bet for exit. I think 1m is enough to observe this bet.",
   "status": "failed",
-  "result_reason": "stock didn't react to 52w high as was expected."
+  "status_reason": "stock didn't react to 52w high as was expected."
+},
+
+{
+  "description": "buy options of Amazon, Microsoft, Apple, Google, Facebook on 04/12.",
+  "decision for participant": "pick call/put for each option.",
+  "exit": "individual x2",
+  "commodity": {
+    "type": "call/put option",
+    "stock price at purchase time": "?",
+    "purchase date": "2018/04/12",
+    "expiration date": "?",
+    "price": "200/each?",
+  },
+  "motivation": "
+    - all those stocks tend to react to earning calls. by buying 2w before and selling 2w after earning data -> you can utilize this reaction if you make the right call
+    - six instead of one to diversify the risk.
+    - all those companies report during the same week. so that allows to make the bet as a single event in time and diversify the risk.
+    - i did it ones for 1K$, but i think that spread could have been bought with half the price -> so that's where 500$ come from.",
+  "status": "discard",
+  "status_reason": "doesn't seem viable anymore."
 },
