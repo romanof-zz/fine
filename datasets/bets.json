@@ -1,73 +1,71 @@
 {
-  "description": "buy call option of Mercury.",
-  "decision for participant": "buy?",
-  "commodity": {
-    "type": "MRCY $70 Call",
-    "stock price at purchase time": 64.95,
-    "purchase date": "2018/04/09",
-    "expiration date": "2018/04/18",
-    "price": 10,
-  },
-  "exit": "eval on 2018/04/12",
-  "motivation": "
+  "type": "OPTION",
+  "title": "MRCY $70 Call - @price: $64.95 - exp: 2018/04/18",
+  "description": "
    - WSJ: Trump announced plans to invest 5B$ into military spending.
    - Mercury's business is to build and supply parts for military airplanes.
    - It also aligns with Goverment support for Boeng going through hard times, so investments might be dirrected to military aircrafts.",
+  "exit_positive": "+30%",
+  "exit_negative": null,
+  "buy_date": "2018/04/09",
+  "buy_price": 10,
+  "sell_price": null,
+  "sell_date": null,
   "status": "active",
-  "result_reason": null,
+  "status_reason": "
+    - seems impossible to sell, as price of option changes due to low volume.",
 },
 
 {
-  "description": "buy call option of LAM Research.",
-  "decision for participant": "buy?",
-  "commodity": {
-    "type": "LRCX $200 Call",
-    "stock price at purchase time": 190,
-    "purchase date": "2018/04/09",
-    "expiration date": "2018/04/18",
-    "price": 87,
-  },
-  "exit": "eval on 2018/04/12",
-  "motivation": "
-   - there's analytics on DeutscheBank and RBC that indicates this stock growth by 5% within next couple of weeks.
-   - current price 190 * 0.05 ~= 10. expected price 190 + 10 = 200.
-   - wait till middle date between purchase date and expiration date and sell if stock isn't growing",
-  "status": "active",
-  "result_reason": null,
-},
-
-{
-  "description": "buy put option of Microsoft cause it hit 52w high.",
-  "decision for participant": "buy?",
-  "commodity": {
-    "type": "MSFT PUT $110",
-    "stock price at purchase time": 116,
-    "purchase date": "2018/03/17",
-    "expiration date": "2018/04/26",
-    "price": 99,
-  },
-  "exit": "+30%",
-  "motivation": "MSFT hit 52w high and expected to go down. I guess that 30% fall is a safe bet for exit. I think 1m is enough to observe this bet.",
+  "type": "OPTION",
+  "name": "LRCX $200 Call - @price: $190 - exp: 2018/04/18",
+  "description": "
+    - there's analytics on DeutscheBank and RBC that indicates this stock growth by 5% within next couple of weeks.
+    - current price 190 * 0.05 ~= 10. expected price 190 + 10 = 200.
+    - wait till middle date between purchase date and expiration date and sell if stock isn't growing",
+  "exit_positive": "+30%",
+  "exit_negative": null,
+  "buy_date": "2018/04/09",
+  "buy_price": 87,
+  "sell_price": 96,
+  "sell_date": "2018/04/09",
   "status": "failed",
-  "status_reason": "stock didn't react to 52w high as was expected."
+  "status_reason": "
+    - didn't reach the positive outcome.
+    - relized didn't have a viable negative exit and decided to sell while positive net.",
 },
 
 {
-  "description": "buy options of Amazon, Microsoft, Apple, Google, Facebook on 04/12.",
-  "decision for participant": "pick call/put for each option.",
-  "exit": "individual x2",
-  "commodity": {
-    "type": "call/put option",
-    "stock price at purchase time": "?",
-    "purchase date": "2018/04/12",
-    "expiration date": "?",
-    "price": "200/each?",
-  },
-  "motivation": "
+  "type": "OPTION",
+  "title": "MSFT PUT $110 - @price: $116 - exp: 2018/04/26",
+  "description": "MSFT hit 52w high and expected to go down. I guess that 30% fall is a safe bet for exit. I think 1m is enough to observe this bet.",
+  "exit_positive": "+30%",
+  "exit_negative": null,
+  "buy_price": 99,
+  "buy_date": "2018/03/17",
+  "sell_price": 37,
+  "sell_date": "2018/04/09",
+  "status": "failed",
+  "status_reason": "
+    - stock didn't react to 52w high as was expected.
+    - didn't reach positive exit.
+    - random exit to salvage funds."
+},
+
+{
+  "type": "OPTION",
+  "title": "buy options of Amazon, Microsoft, Apple, Google, Facebook on 04/12.",
+  "description": "
     - all those stocks tend to react to earning calls. by buying 2w before and selling 2w after earning data -> you can utilize this reaction if you make the right call
     - six instead of one to diversify the risk.
     - all those companies report during the same week. so that allows to make the bet as a single event in time and diversify the risk.
     - i did it ones for 1K$, but i think that spread could have been bought with half the price -> so that's where 500$ come from.",
+  "exit_positive": "individual x2",
+  "exit_negative": null,
+  "buy_price": null,
+  "buy_date": null,
+  "sell_price": null,
+  "sell_date": null,
   "status": "discard",
-  "status_reason": "doesn't seem viable anymore."
+  "status_reason": "not viable, as adding 6 separate events doesn't change probability of single."
 },
