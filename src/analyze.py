@@ -14,5 +14,5 @@ args = parser.parse_args()
 
 tickers = TickerParser(ROOT).parse_daily(args.stock)
 analyzer = TickerAnalyzer(tickers)
-result = analyzer.analyze(args.period, args.function)
-print(str(result))
+results = analyzer.analyze(args.period, args.function)
+for result in results: print(result)
