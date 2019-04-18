@@ -1,5 +1,6 @@
 import argparse
 import os.path
+import sys
 
 from ticker.helpers import TickerConfig
 from ticker.analyzers import TickerAnalyzer
@@ -7,14 +8,19 @@ from ticker.analyzers import TickerAnalyzer
 CONFIG = TickerConfig(os.path.abspath(os.path.join(os.path.dirname(__file__),"..")))
 
 parser = argparse.ArgumentParser()
+parser.set_defaults(update=True, analyze=True)
+parser.add_argument('--no-update', dest='update', action='store_false')
+parser.add_argument('--no-analyze', dest='analyze', action='store_false')
+
 parser.add_argument("-s", "--stock", help="stock to analize")
 parser.add_argument("-p", "--period", help="analysis period")
 parser.add_argument("-f", "--function", help="analysis function")
 args = parser.parse_args()
 
-# https://query1.finance.yahoo.com/v7/finance/download/GOOG?period1=1552867736&period2=1555546136&interval=1d&events=history&crumb=6dfZ4Wz26XV
-
 stocks = CONFIG.default_stocks() if args.stock is None else [args.stock]
+if args.update: CONFIG.updater(stocks).update_daily()
+if not args.analyze: sys.exit(0)
+
 tickers = CONFIG.parser().parse_daily(stocks)
 analyzer = TickerAnalyzer(tickers)
 analyzer.analyze(args.period, args.function)

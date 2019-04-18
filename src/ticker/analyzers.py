@@ -163,7 +163,7 @@ class TickerAnalyzer:
                     # print("== added ticker with index={i} ==".format(i=idx))
                     result.add_ticker(idx)
             except (ValueError):
-                next
+                continue
         # print("== result count={c} ==".format(c=result.count))
         print(str(result))
         return result
