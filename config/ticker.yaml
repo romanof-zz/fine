@@ -5,6 +5,13 @@ stocks:
 - FB
 - NFLX
 - MSFT
+- LRCX
+- UNH
+- BHGE
+- ATVI
+- ALK
+- AXP
+- JNJ
 updater:
   auth_cookie: 60s3hqte9dlv9&b=3&s=it
   token: 6dfZ4Wz26XV
