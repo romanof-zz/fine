@@ -63,6 +63,9 @@ class TickerAnalysisResult:
                 break
         self.count += 1
 
+    def empty(self):
+        return len(self.ticker_results) == 0
+
     def calculate_stats(self):
         for k in self.ticker_results:
             for idx in self.RESULT_FRAMES:
@@ -117,26 +120,28 @@ class TickerAnalyzer:
         self.logger = logging.getLogger(__name__)
         self.tickers = tickers
 
-    def high(self, tickers, ticker, period):
-        start_date = ticker.date - datetime.timedelta(days=period)
-        if tickers[0].date > start_date: raise ValueError("invalid period")
-
+    def high(self, tickers, start, period):
         max_high = 0
-        for t in tickers:
-            if t.date >= start_date and t.date < ticker.date and max_high < t.high:
-                max_high = t.high
+        end = start + period + 1
+        if end >= len(tickers): return False
+        ticker = tickers[start]
+
+        for i in range(start + 1, end):
+            if max_high < tickers[i].high:
+                max_high = tickers[i].high
 
         self.logger.debug("== result max_high: {mh}, ticker: {t} ==".format(mh=max_high, t=ticker))
         return ticker.open < max_high and ticker.high > max_high
 
-    def low(self, tickers, ticker, period):
-        start_date = ticker.date - datetime.timedelta(days=period)
-        if tickers[0].date > start_date: raise ValueError("invalid period")
-
+    def low(self, tickers, start, period):
         min_low = sys.maxsize
-        for t in tickers:
-            if t.date >= start_date and t.date < ticker.date and min_low > t.low:
-                min_low = t.low
+        end = start + period + 1
+        if end >= len(tickers): return False
+        ticker = tickers[start]
+
+        for i in range(start + 1, end):
+            if min_low > tickers[i].low:
+                min_low = tickers[i].low
 
         self.logger.debug("== result min_low: {ml}, ticker: {t} ==".format(ml=min_low, t=ticker))
         return ticker.open > min_low and ticker.low < min_low
@@ -148,8 +153,10 @@ class TickerAnalyzer:
             results += self.__analyze_single(stock, self.__filter_tickers_by_stock(stock), period, function)
         return results
 
-    def __filter_tickers_by_stock(self, stock):
-        return sorted(filter(lambda t: t.stock == stock, self.tickers), key=lambda t: t.date)
+    def __filter_tickers_by_stock(self, stock, reverse=True):
+        return sorted(filter(lambda t: t.stock == stock, self.tickers),
+                      key=lambda t: t.date,
+                      reverse=reverse)
 
     def __analyze_single(self, stock, tickers, period, function):
         self.logger.debug("== analyze_single input: tickers={t}, period={p}, function={f}  ==".format(t=len(tickers), p=period, f=function))
@@ -159,14 +166,15 @@ class TickerAnalyzer:
 
     def __analyze(self, stock, tickers, period, function):
         self.logger.debug("== analyze input: tickers={t}, period={p}, function={f}  ==".format(t=len(tickers), p=period, f=function))
-        result = TickerAnalysisResult(stock, tickers, period, function)
+        result = TickerAnalysisResult(stock, self.__filter_tickers_by_stock(stock, False), period, function)
         for idx, ticker in enumerate(tickers):
-            try:
-                if getattr(self, function)(tickers, ticker, int(period)):
-                    self.logger.debug("== added ticker with index={i} ==".format(i=idx))
-                    result.add_ticker(idx)
-            except (ValueError):
-                continue
+            extreme = getattr(self, function)(tickers, idx, int(period))
+            if not extreme and idx == 0:
+                self.logger.info("{s} {p} {f} - no hit on {d}".format(s=stock, p=period, f=function, d=ticker.date))
+                break
+            if extreme:
+                self.logger.debug("== added ticker with index={i} ==".format(i=idx))
+                result.add_ticker(idx)
         self.logger.debug("== result count={c} ==".format(c=result.count))
-        self.logger.info(result)
+        if not result.empty(): self.logger.info(result)
         return result
