@@ -1,5 +1,6 @@
 import sys
 import datetime
+import logging
 
 class Ticker:
     DAILY = "daily"
@@ -112,6 +113,8 @@ class TickerAnalyzer:
     AVAILABLE_PERIODS=[30,90,180,365,730]
 
     def __init__(self, tickers):
+        logging.basicConfig(level=logging.INFO)
+        self.logger = logging.getLogger(__name__)
         self.tickers = tickers
 
     def high(self, tickers, ticker, period):
@@ -123,7 +126,7 @@ class TickerAnalyzer:
             if t.date >= start_date and t.date < ticker.date and max_high < t.high:
                 max_high = t.high
 
-        # print("== result max_high: {mh}, ticker: {t} ==".format(mx=max_high, t=ticker))
+        self.logger.debug("== result max_high: {mh}, ticker: {t} ==".format(mh=max_high, t=ticker))
         return ticker.open < max_high and ticker.high > max_high
 
     def low(self, tickers, ticker, period):
@@ -135,13 +138,13 @@ class TickerAnalyzer:
             if t.date >= start_date and t.date < ticker.date and min_low > t.low:
                 min_low = t.low
 
-        # print("== result min_low: {ml}, ticker: {t} ==".format(ml=min_low, t=ticker))
+        self.logger.debug("== result min_low: {ml}, ticker: {t} ==".format(ml=min_low, t=ticker))
         return ticker.open > min_low and ticker.low < min_low
 
     def analyze(self, period, function):
         results = []
         for stock in set(map(lambda t: t.stock, self.tickers)):
-            # print("== analyzing {stock} stock. ==".format(stock=stock))
+            self.logger.debug("== analyzing {stock} stock. ==".format(stock=stock))
             results += self.__analyze_single(stock, self.__filter_tickers_by_stock(stock), period, function)
         return results
 
@@ -149,21 +152,21 @@ class TickerAnalyzer:
         return sorted(filter(lambda t: t.stock == stock, self.tickers), key=lambda t: t.date)
 
     def __analyze_single(self, stock, tickers, period, function):
-        # print("== analyze_single input: tickers={t}, period={p}, function={f}  ==".format(t=len(tickers), p=period, f=function))
+        self.logger.debug("== analyze_single input: tickers={t}, period={p}, function={f}  ==".format(t=len(tickers), p=period, f=function))
         periods = self.AVAILABLE_PERIODS if period is None else [period]
         functions = self.AVAILABLE_FUNCTIONS if function is None else [function]
         return [self.__analyze(stock, tickers, p, f) for f in functions for p in periods]
 
     def __analyze(self, stock, tickers, period, function):
-        # print("== analyze input: tickers={t}, period={p}, function={f}  ==".format(t=len(tickers), p=period, f=function))
+        self.logger.debug("== analyze input: tickers={t}, period={p}, function={f}  ==".format(t=len(tickers), p=period, f=function))
         result = TickerAnalysisResult(stock, tickers, period, function)
         for idx, ticker in enumerate(tickers):
             try:
                 if getattr(self, function)(tickers, ticker, int(period)):
-                    # print("== added ticker with index={i} ==".format(i=idx))
+                    self.logger.debug("== added ticker with index={i} ==".format(i=idx))
                     result.add_ticker(idx)
             except (ValueError):
                 continue
-        # print("== result count={c} ==".format(c=result.count))
-        print(str(result))
+        self.logger.debug("== result count={c} ==".format(c=result.count))
+        self.logger.info(result)
         return result
