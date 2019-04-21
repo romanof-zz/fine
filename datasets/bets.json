@@ -1,5 +1,23 @@
 {
   "type": "OPTION",
+  "title": "BHGE $27 Call - @price: $25.95 - exp: 2018/05/17",
+  "description": "
+   - oil prices are going up.
+   - BHGE were about to publish a quaterly report that was expected a raise of drilling rigs.
+   - the bi-weekly report analysis was indicating that.",
+  "exit_positive": "+30%",
+  "exit_negative": "-10%",
+  "buy_date": "2018/04/17",
+  "buy_price": 55,
+  "sell_price": null,
+  "sell_date": null,
+  "status": "active",
+  "status_reason": "
+    - 04/17: alredy went under -10% but didn't sell, cause expecting report on 04/19.",
+},
+
+{
+  "type": "OPTION",
   "title": "MRCY $70 Call - @price: $64.95 - exp: 2018/04/18",
   "description": "
    - WSJ: Trump announced plans to invest 5B$ into military spending.
@@ -9,11 +27,13 @@
   "exit_negative": null,
   "buy_date": "2018/04/09",
   "buy_price": 10,
-  "sell_price": null,
-  "sell_date": null,
-  "status": "active",
+  "sell_price": 0,
+  "sell_date": "2018/04/18",
+  "status": "failed",
   "status_reason": "
-    - seems impossible to sell, as price of option changes due to low volume.",
+    - seems impossible to sell, as price of option changes due to low volume.
+    - expired with no money.
+    - relying on Trump announcements is probably a bad idea.",
 },
 
 {
