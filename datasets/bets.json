@@ -9,9 +9,9 @@
   "exit_negative": "-10%",
   "buy_date": "2018/04/17",
   "buy_price": 55,
-  "sell_price": null,
-  "sell_date": null,
-  "status": "active",
+  "sell_price": 80,
+  "sell_date": "2018/04/23",
+  "status": "success",
   "status_reason": "
     - 04/17: alredy went under -10% but didn't sell, cause expecting report on 04/19.",
 },
