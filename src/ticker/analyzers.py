@@ -113,7 +113,7 @@ class TickerAnalysisResult:
 
 class TickerAnalyzer:
     AVAILABLE_FUNCTIONS=["high", "low"]
-    AVAILABLE_PERIODS=range(3, 5*365)
+    AVAILABLE_PERIODS= list(range(3, 29)) + list(range(30, 89, 5)) + list(range(90, 360, 30)) + list(range(365, 365*5, 365))
 
     def __init__(self, tickers):
         logging.basicConfig(level=logging.INFO)
@@ -148,25 +148,18 @@ class TickerAnalyzer:
 
     def analyze(self, period, function):
         results = []
-        for stock in set(map(lambda t: t.stock, self.tickers)):
-            self.logger.debug("== analyzing {stock} stock. ==".format(stock=stock))
-            results += self.__analyze_single(stock, self.__filter_tickers_by_stock(stock), period, function)
-        return results
-
-    def __filter_tickers_by_stock(self, stock, reverse=True):
-        return sorted(filter(lambda t: t.stock == stock, self.tickers),
-                      key=lambda t: t.date,
-                      reverse=reverse)
-
-    def __analyze_single(self, stock, tickers, period, function):
-        self.logger.debug("== analyze_single input: tickers={t}, period={p}, function={f}  ==".format(t=len(tickers), p=period, f=function))
         periods = self.AVAILABLE_PERIODS if period is None else [period]
         functions = self.AVAILABLE_FUNCTIONS if function is None else [function]
-        return [self.__analyze(stock, tickers, p, f) for f in functions for p in periods]
+        for stock in set(map(lambda t: t.stock, self.tickers)):
+            tickers = sorted(filter(lambda t: t.stock == stock, self.tickers), key=lambda t: t.date, reverse=True)
+            rtickers = list(reversed(tickers))
+            results += [self.__analyze(tickers, rtickers, stock, p, f) for f in functions for p in periods]
+        return results
 
-    def __analyze(self, stock, tickers, period, function):
+    def __analyze(self, tickers, reverse, stock, period, function):
+        result = TickerAnalysisResult(stock, reverse, period, function)
+
         self.logger.debug("== analyze input: tickers={t}, period={p}, function={f}  ==".format(t=len(tickers), p=period, f=function))
-        result = TickerAnalysisResult(stock, self.__filter_tickers_by_stock(stock, False), period, function)
         for idx, ticker in enumerate(tickers):
             extreme = getattr(self, function)(tickers, idx, int(period))
             if not extreme and idx == 0:
@@ -175,6 +168,7 @@ class TickerAnalyzer:
             if extreme:
                 self.logger.debug("== added ticker with index={i} ==".format(i=idx))
                 result.add_ticker(idx)
+
         self.logger.debug("== result count={c} ==".format(c=result.count))
         if not result.empty(): self.logger.info(result)
         return result
