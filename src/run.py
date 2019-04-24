@@ -8,9 +8,8 @@ from ticker.analyzers import TickerAnalyzer
 CONFIG = TickerConfig(os.path.abspath(os.path.join(os.path.dirname(__file__),"..")))
 
 parser = argparse.ArgumentParser()
-parser.set_defaults(update=True, analyze=True)
-parser.add_argument('--no-update', dest='update', action='store_false')
-parser.add_argument('--no-analyze', dest='analyze', action='store_false')
+parser.add_argument('--no-update', dest='update', default=True, action='store_false')
+parser.add_argument('--no-analyze', dest='analyze', default=True, action='store_false')
 
 parser.add_argument("-s", "--stock", help="stock to analize")
 parser.add_argument("-p", "--period", help="analysis period")

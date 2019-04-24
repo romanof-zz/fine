@@ -113,7 +113,7 @@ class TickerAnalysisResult:
 
 class TickerAnalyzer:
     AVAILABLE_FUNCTIONS=["high", "low"]
-    AVAILABLE_PERIODS=[30,90,180,365,730]
+    AVAILABLE_PERIODS=range(3, 5*365)
 
     def __init__(self, tickers):
         logging.basicConfig(level=logging.INFO)
@@ -170,7 +170,7 @@ class TickerAnalyzer:
         for idx, ticker in enumerate(tickers):
             extreme = getattr(self, function)(tickers, idx, int(period))
             if not extreme and idx == 0:
-                self.logger.info("{s} {p} {f} - no hit on {d}".format(s=stock, p=period, f=function, d=ticker.date))
+                self.logger.debug("== {s} {p} {f} - no hit on {d} ==".format(s=stock, p=period, f=function, d=ticker.date))
                 break
             if extreme:
                 self.logger.debug("== added ticker with index={i} ==".format(i=idx))
