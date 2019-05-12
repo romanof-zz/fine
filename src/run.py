@@ -1,11 +1,9 @@
-import argparse
-import os.path
 import sys
+import argparse
+from config import CONFIG
 
-from ticker.helpers import TickerConfig
 from ticker.analyzers import TickerAnalyzer
-
-CONFIG = TickerConfig(os.path.abspath(os.path.join(os.path.dirname(__file__),"..")))
+from ticker.helpers import TickerUpdater, TickerParser
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--no-update', dest='update', default=True, action='store_false')
@@ -16,10 +14,16 @@ parser.add_argument("-p", "--period", help="analysis period")
 parser.add_argument("-f", "--function", help="analysis function")
 args = parser.parse_args()
 
-stocks = CONFIG.default_stocks() if args.stock is None else [args.stock]
-if args.update: CONFIG.updater(stocks).update_daily()
+stocks = CONFIG.stocks if args.stock is None else [args.stock]
+updater = TickerUpdater(
+    CONFIG.root,
+    stocks,
+    CONFIG.secrets["updater"]["token"],
+    CONFIG.secrets["updater"]["auth_cookie"])
+
+if args.update: updater.update_daily()
 if not args.analyze: sys.exit(0)
 
-tickers = CONFIG.parser().parse_daily(stocks)
+tickers = TickerParser(CONFIG.root).parse_daily(stocks)
 analyzer = TickerAnalyzer(tickers)
 analyzer.analyze(args.period, args.function)

@@ -1,28 +1,8 @@
 import time
 import csv
-import yaml
 import urllib.request
 
 from .analyzers import Ticker
-
-class TickerConfig:
-    def __init__(self, root):
-        self.root = root
-        with open("{dir}/config/ticker.yaml".format(dir=root), 'r') as data:
-            self.config = yaml.load(data, Loader=yaml.BaseLoader)
-
-    def parser(self):
-        return TickerParser(self.root)
-
-    def updater(self, stocks):
-        return TickerUpdater(
-            self.root,
-            stocks,
-            self.config['updater']['token'],
-            self.config['updater']['auth_cookie'])
-
-    def default_stocks(self):
-        return self.config["stocks"]
 
 class TickerUpdater:
     URL_BASE = "https://query1.finance.yahoo.com/v7/finance/download"
