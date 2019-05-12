@@ -4,6 +4,7 @@ from config import CONFIG
 
 from ticker.analyzers import TickerAnalyzer
 from ticker.helpers import TickerUpdater, TickerParser
+from storage.s3_cached_store import S3CachedStore
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--no-update', dest='update', default=True, action='store_false')
@@ -15,8 +16,10 @@ parser.add_argument("-f", "--function", help="analysis function")
 args = parser.parse_args()
 
 stocks = CONFIG.stocks if args.stock is None else [args.stock]
+storage = S3CachedStore(CONFIG.root)
+
 updater = TickerUpdater(
-    CONFIG.root,
+    storage.with_bucket('fine.tickers'),
     stocks,
     CONFIG.secrets["updater"]["token"],
     CONFIG.secrets["updater"]["auth_cookie"])
@@ -24,6 +27,6 @@ updater = TickerUpdater(
 if args.update: updater.update_daily()
 if not args.analyze: sys.exit(0)
 
-tickers = TickerParser(CONFIG.root).parse_daily(stocks)
+tickers = TickerParser(storage.with_bucket('fine.tickers')).parse_daily(stocks)
 analyzer = TickerAnalyzer(tickers)
 analyzer.analyze(args.period, args.function)
