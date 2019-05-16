@@ -2,8 +2,8 @@ import sys
 import argparse
 from config import CONFIG
 
-from ticker.analyzers import TickerAnalyzer
-from ticker.helpers import TickerUpdater, TickerParser
+from tickers.analyzers import TickerAnalyzer
+from tickers.helpers import TickerUpdater, TickerParser
 from storage.s3_cached_store import S3CachedStore
 
 parser = argparse.ArgumentParser()

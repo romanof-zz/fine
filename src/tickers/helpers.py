@@ -2,7 +2,7 @@ import time
 import csv
 import urllib.request
 
-from .analyzers import Ticker
+from .models import Ticker
 
 def daily_name(stock):
     return "{}_{}.csv".format(stock, Ticker.DAILY)

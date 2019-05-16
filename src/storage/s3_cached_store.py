@@ -1,3 +1,4 @@
+import io
 import os
 import boto3
 
@@ -14,7 +15,7 @@ class S3CachedStore:
     def put(self, key, data):
         with open(self.__cached_path(key), 'wb') as file:
             file.write(data)
-            self.s3.upload_fileobj(file, self.bucket, key)
+            self.s3.upload_fileobj(io.BytesIO(data), self.bucket, key)
 
     def get(self, key):
         try:
