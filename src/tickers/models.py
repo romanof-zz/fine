@@ -14,10 +14,6 @@ class Ticker:
         self.adj_close = float(adj_close)
         self.volume = int(volume)
 
-    @classmethod
-    def init_daily(self, stock, row):
-        return self(self.DAILY, stock, row[0], row[1], row[2], row[3], row[4], row[5], row[6])
-
     def __str__(self):
         return "[{s} {d}] open: {o} close: {c} high: {h} low: {l} ".format(
             s=self.stock,
