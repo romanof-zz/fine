@@ -24,15 +24,16 @@ class Ticker:
             l=self.low)
 
 class TickerAnalysisStats:
+    UP = "up"
+    DOWN = "down"
+    GROUPS = [UP, DOWN]
+
     def __init__(self):
-        self.sum_lo_percent_change = 0.0
-        self.sum_hi_percent_change = 0.0
-        self.lo_percent_change = 0.0
-        self.hi_percent_change = 0.0
-        self.lo_count = 0
-        self.hi_count = 0
-        self.hi_extreme = 0.0
-        self.lo_extreme = 0.0
+        self.sum_percent_change = 0.0
+        self.percent_change = 0.0
+        self.count = 0
+        self.chance = 0.0
+        self.extreme = 0.0
 
 class TickerAnalysisResult:
     RESULT_FRAMES = [1, 3, 7, 14, 30]
@@ -46,7 +47,9 @@ class TickerAnalysisResult:
         self.ticker_results = {}
         self.stats = {}
         for i in self.RESULT_FRAMES:
-            self.stats[i] = TickerAnalysisStats()
+            self.stats[i] = {}
+            self.stats[i][TickerAnalysisStats.UP] = TickerAnalysisStats()
+            self.stats[i][TickerAnalysisStats.DOWN] = TickerAnalysisStats()
 
     def add_ticker(self, offset):
         self.ticker_results[self.count] = []
@@ -67,40 +70,37 @@ class TickerAnalysisResult:
                 if len(tset) <= idx: continue
 
                 percent_change = abs(tset[idx].adj_close - tset[0].adj_close) / tset[0].adj_close
-                if tset[0].adj_close < tset[idx].adj_close:
-                    self.stats[idx].sum_hi_percent_change += percent_change
-                    self.stats[idx].hi_count += 1
-                    if self.stats[idx].hi_extreme < percent_change: self.stats[idx].hi_extreme = percent_change
-                else:
-                    self.stats[idx].sum_lo_percent_change += percent_change
-                    self.stats[idx].lo_count += 1
-                    if self.stats[idx].lo_extreme < percent_change: self.stats[idx].lo_extreme = percent_change
+                skey = TickerAnalysisStats.UP if tset[0].adj_close < tset[idx].adj_close else TickerAnalysisStats.DOWN
+
+                self.stats[idx][skey].sum_percent_change += percent_change
+                self.stats[idx][skey].count += 1
+                if self.stats[idx][skey].extreme < percent_change:
+                    self.stats[idx][skey].extreme = percent_change
 
         for idx in self.RESULT_FRAMES:
-            if self.stats[idx].lo_count:
-                self.stats[idx].lo_percent_change = self.stats[idx].sum_lo_percent_change / self.stats[idx].lo_count
-            if self.stats[idx].hi_count:
-                self.stats[idx].hi_percent_change = self.stats[idx].sum_hi_percent_change / self.stats[idx].hi_count
+            for skey in TickerAnalysisStats.GROUPS:
+                if self.stats[idx][skey].count:
+                    self.stats[idx][skey].chance = self.stats[idx][skey].count / self.count
+                    self.stats[idx][skey].percent_change = self.stats[idx][skey].sum_percent_change / self.stats[idx][skey].count
 
     def __str__(self):
         self.calculate_stats()
 
         ret = ""
         for offset in self.RESULT_FRAMES:
-            ret += "{s} - {p}d {f} ({cnt} events) ".format(s=self.stock, p=self.period, f=self.function, cnt=self.count)
+            ret += "\n{s} - {p}d {f} ({cnt} events) ".format(s=self.stock, p=self.period, f=self.function, cnt=self.count)
             if not self.count: return ret
 
             ret += "[{o}d]: ".format(o=offset)
-            ret += "max: {max:.2f}%; min: -{min:.2f}%; ".format(
-                max=self.stats[offset].hi_extreme * 100,
-                min=self.stats[offset].lo_extreme * 100)
-            ret += "up avg: {avg:.2f}% with ({e} - {ep:.2f}%) events; ".format(
-                avg=self.stats[offset].hi_percent_change * 100,
-                e=self.stats[offset].hi_count,
-                ep=self.stats[offset].hi_count / self.count * 100)
-            ret += "down avg: {avg:.2f}% with ({e} - {ep:.2f}%) events;\n".format(
-                avg=self.stats[offset].lo_percent_change * 100,
-                e=self.stats[offset].lo_count,
-                ep=self.stats[offset].lo_count / self.count * 100)
+            ret += "max: {max:.2f}%; min: -{min:.2f}%;".format(
+                max=self.stats[offset][TickerAnalysisStats.UP].extreme * 100,
+                min=self.stats[offset][TickerAnalysisStats.DOWN].extreme * 100)
+
+            for skey in TickerAnalysisStats.GROUPS:
+                ret += " {key} avg: {avg:.2f}% with ({e} - {ep:.2f}%) events;".format(
+                    key=skey,
+                    avg=self.stats[offset][skey].percent_change * 100,
+                      e=self.stats[offset][skey].count,
+                     ep=self.stats[offset][skey].chance * 100)
 
         return ret

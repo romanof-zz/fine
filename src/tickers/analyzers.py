@@ -3,8 +3,8 @@ import logging
 from .models import TickerAnalysisResult
 
 class TickerAnalyzer:
-    AVAILABLE_FUNCTIONS=["high", "low"]
-    AVAILABLE_PERIODS= list(range(3, 29)) + list(range(30, 89, 5)) + list(range(90, 360, 30)) + list(range(365, 365*5, 365))
+    FUNCTIONS=["high", "low"]
+    PERIODS= list(range(3, 29)) + list(range(30, 89, 5)) + list(range(90, 360, 30)) + list(range(365, 365*5, 365))
 
     def __init__(self, tickers):
         logging.basicConfig(level=logging.INFO)
@@ -39,8 +39,8 @@ class TickerAnalyzer:
 
     def analyze(self, period, function):
         results = []
-        periods = self.AVAILABLE_PERIODS if period is None else [period]
-        functions = self.AVAILABLE_FUNCTIONS if function is None else [function]
+        periods = self.PERIODS if period is None else [period]
+        functions = self.FUNCTIONS if function is None else [function]
         for stock in set(map(lambda t: t.stock, self.tickers)):
             tickers = sorted(filter(lambda t: t.stock == stock, self.tickers), key=lambda t: t.date, reverse=True)
             rtickers = list(reversed(tickers))
