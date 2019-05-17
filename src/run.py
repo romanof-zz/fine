@@ -6,8 +6,8 @@ from tickers.data_access import TickerDataAccess
 from storage.s3_cached_store import S3CachedStore
 
 access = TickerDataAccess(S3CachedStore(CONFIG.root),
-                          CONFIG.secrets["updater"]["token"],
-                          CONFIG.secrets["updater"]["auth_cookie"])
+                          CONFIG.secrets["yahoo"]["token"],
+                          CONFIG.secrets["yahoo"]["auth_cookie"])
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--no-update', dest='update', default=True, action='store_false')
