@@ -45,7 +45,7 @@ class TickerAnalyzer:
             tickers = sorted(filter(lambda t: t.stock == stock, self.tickers), key=lambda t: t.date, reverse=True)
             rtickers = list(reversed(tickers))
             results += [self.__analyze(tickers, rtickers, stock, p, f) for f in functions for p in periods]
-        return results
+        return filter(lambda r: not r.empty(), results)
 
     def __analyze(self, tickers, reverse, stock, period, function):
         result = TickerAnalysisResult(stock, reverse, period, function)

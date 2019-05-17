@@ -26,14 +26,26 @@ class Ticker:
 class TickerAnalysisStats:
     UP = "up"
     DOWN = "down"
-    GROUPS = [UP, DOWN]
+    TYPES = [UP, DOWN]
 
-    def __init__(self):
+    def __init__(self, ticker_result, result_frame, type):
+        self.ticker_result = ticker_result
+        self.result_frame = result_frame
+        self.type = type
         self.sum_percent_change = 0.0
         self.percent_change = 0.0
         self.count = 0
         self.chance = 0.0
         self.extreme = 0.0
+
+    def record_percent_change(self, percent_change):
+        self.sum_percent_change += percent_change
+        self.count += 1
+        if self.extreme < percent_change: self.extreme = percent_change
+
+    def update_counts(self):
+        self.chance = self.count / self.ticker_result.count
+        if self.count: self.percent_change = self.sum_percent_change / self.count
 
 class TickerAnalysisResult:
     RESULT_FRAMES = [1, 3, 7, 14, 30]
@@ -48,8 +60,8 @@ class TickerAnalysisResult:
         self.stats = {}
         for i in self.RESULT_FRAMES:
             self.stats[i] = {}
-            self.stats[i][TickerAnalysisStats.UP] = TickerAnalysisStats()
-            self.stats[i][TickerAnalysisStats.DOWN] = TickerAnalysisStats()
+            self.stats[i][TickerAnalysisStats.UP] = TickerAnalysisStats(self, i, TickerAnalysisStats.UP)
+            self.stats[i][TickerAnalysisStats.DOWN] = TickerAnalysisStats(self, i, TickerAnalysisStats.DOWN)
 
     def add_ticker(self, offset):
         self.ticker_results[self.count] = []
@@ -65,23 +77,23 @@ class TickerAnalysisResult:
 
     def calculate_stats(self):
         for k in self.ticker_results:
-            for idx in self.RESULT_FRAMES:
+            for frame in self.RESULT_FRAMES:
                 tset = self.ticker_results[k]
-                if len(tset) <= idx: continue
+                if len(tset) <= frame: continue
 
-                percent_change = abs(tset[idx].adj_close - tset[0].adj_close) / tset[0].adj_close
-                skey = TickerAnalysisStats.UP if tset[0].adj_close < tset[idx].adj_close else TickerAnalysisStats.DOWN
+                percent_change = abs(tset[frame].adj_close - tset[0].adj_close) / tset[0].adj_close
+                type = TickerAnalysisStats.UP if tset[0].adj_close < tset[frame].adj_close else TickerAnalysisStats.DOWN
+                self.stats[frame][type].record_percent_change(percent_change)
 
-                self.stats[idx][skey].sum_percent_change += percent_change
-                self.stats[idx][skey].count += 1
-                if self.stats[idx][skey].extreme < percent_change:
-                    self.stats[idx][skey].extreme = percent_change
+        [self.stats[frame][type].update_counts() for type in TickerAnalysisStats.TYPES for frame in self.RESULT_FRAMES]
 
-        for idx in self.RESULT_FRAMES:
-            for skey in TickerAnalysisStats.GROUPS:
-                if self.stats[idx][skey].count:
-                    self.stats[idx][skey].chance = self.stats[idx][skey].count / self.count
-                    self.stats[idx][skey].percent_change = self.stats[idx][skey].sum_percent_change / self.stats[idx][skey].count
+    def to_stats_above_chance_value(self, chance_value):
+        stats = []
+        for frame in self.RESULT_FRAMES:
+            for type in TickerAnalysisStats.TYPES:
+                if self.stats[frame][type].chance >= chance_value:
+                    stats.append(self.stats[frame][type])
+        return stats
 
     def __str__(self):
         self.calculate_stats()
@@ -96,7 +108,7 @@ class TickerAnalysisResult:
                 max=self.stats[offset][TickerAnalysisStats.UP].extreme * 100,
                 min=self.stats[offset][TickerAnalysisStats.DOWN].extreme * 100)
 
-            for skey in TickerAnalysisStats.GROUPS:
+            for skey in TickerAnalysisStats.TYPES:
                 ret += " {key} avg: {avg:.2f}% with ({e} - {ep:.2f}%) events;".format(
                     key=skey,
                     avg=self.stats[offset][skey].percent_change * 100,

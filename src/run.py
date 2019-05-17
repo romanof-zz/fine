@@ -21,5 +21,8 @@ args = parser.parse_args()
 stocks = CONFIG.stocks if args.stock is None else [args.stock]
 if args.update: access.update(stocks)
 if args.analyze:
+    threshold = float(CONFIG.secrets["ticker"]["analysis_threshold"])
     tickers = access.load(stocks)
-    TickerAnalyzer(tickers).analyze(args.period, args.function)
+    results = TickerAnalyzer(tickers).analyze(args.period, args.function)
+    stats = list( filter(lambda s: s, map(lambda r: r.to_stats_above_chance_value(threshold), results)))
+    print(len(stats))
