@@ -9,7 +9,7 @@ class Config:
           "LRCX","UNH", "BHGE", "ATVI", "ALK", "AXP", "JNJ" # random
         ]
 
-        with open("{dir}/secrets.yaml".format(dir=self.root), 'r') as file:
+        with open("{dir}/secrets.yml".format(dir=self.root), 'r') as file:
              self.secrets = yaml.load(file, Loader=yaml.BaseLoader)
 
 CONFIG = Config()
