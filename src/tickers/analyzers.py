@@ -4,7 +4,7 @@ from .models import TickerAnalysisResult
 
 class TickerAnalyzer:
     FUNCTIONS=["high", "low"]
-    PERIODS= list(range(3, 29)) + list(range(30, 89, 5)) + list(range(90, 360, 30)) + list(range(365, 365*5, 365))
+    PERIODS= [3, 7, 14, 30, 90, 180, 365, 365*3, 365*5]
 
     def __init__(self, tickers):
         logging.basicConfig(level=logging.INFO)
@@ -48,7 +48,7 @@ class TickerAnalyzer:
         return filter(lambda r: not r.empty(), results)
 
     def __analyze(self, tickers, reverse, stock, period, function):
-        result = TickerAnalysisResult(stock, reverse, period, function)
+        result = TickerAnalysisResult(stock, tickers[0],  reverse, period, function)
 
         self.logger.debug("== analyze input: tickers={t}, period={p}, function={f}  ==".format(t=len(tickers), p=period, f=function))
         for idx, ticker in enumerate(tickers):

@@ -49,9 +49,11 @@ class TickerAnalysisStats:
 
 class TickerAnalysisResult:
     RESULT_FRAMES = [1, 3, 7, 14, 30]
+    MIN_CONSIDERRED = 0.01
 
-    def __init__(self, stock, tickers, period, function):
+    def __init__(self, stock, current, tickers, period, function):
         self.stock = stock
+        self.current = current
         self.period = period
         self.function = function
         self.tickers = tickers
@@ -91,7 +93,8 @@ class TickerAnalysisResult:
         stats = []
         for frame in self.RESULT_FRAMES:
             for type in TickerAnalysisStats.TYPES:
-                if self.stats[frame][type].chance >= chance_value:
+                if (self.stats[frame][type].chance >= chance_value and
+                   self.stats[frame][type].percent_change >= self.MIN_CONSIDERRED):
                     stats.append(self.stats[frame][type])
         return stats
 

@@ -12,10 +12,15 @@ class S3CachedStore:
         self.bucket_cache_root = self.cache_root + bucket
         return self
 
-    def put(self, key, data):
+    def upload(self, key):
+        with open(self.__cached_path(key), 'rb') as file:
+            self.s3.upload_fileobj(io.BytesIO(file.read()), self.bucket, key)
+
+    def put(self, key, data, local_only=False):
         with open(self.__cached_path(key), 'wb') as file:
             file.write(data)
-            self.s3.upload_fileobj(io.BytesIO(data), self.bucket, key)
+            if not local_only:
+                self.s3.upload_fileobj(io.BytesIO(data), self.bucket, key)
 
     def get(self, key):
         try:
