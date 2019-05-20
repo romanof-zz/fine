@@ -32,6 +32,7 @@ These guiding principles, along with principles of a typical worker cooperative,
 - 🔥[Forecasting financial time series using a lowcomplexity recurrent neural network andevolutionary learning approach](https://reader.elsevier.com/reader/sd/pii/S1319157815000944?token=F38D985CB260B0D4BB66F5D3466A0784C79BFB291005935F090DD8E3A7D37EF54E455704DDC1AF7E62AA681EBFF060B4)
 - [Forecasting: Principles and Practice](https://otexts.com/fpp2/)
 - [RUS: Технический анализ](https://books.google.com/books?id=-43ivEJMrOcC)
+- [Random: Probability, Mathematical Statistics, Stochastic Processes](https://www.randomservices.org/random/index.html)
 
 ## links
 
@@ -40,11 +41,14 @@ These guiding principles, along with principles of a typical worker cooperative,
 - [all weather fund](https://www.iwillteachyoutoberich.com/blog/all-weather-portfolio/)
 - [portfolio risk distribution article](https://macro-ops.com/ray-dalio-portfolio-allocation-strategy-holy-grail/)
 - [options trading](http://www.theoptionsguide.com/)
-
+- [data skeptic podcast](https://podcasts.apple.com/us/podcast/data-skeptic/id890348705)
 
 ## dev setup
 
-- using [s3fs](https://github.com/s3fs-fuse/s3fs-fuse). Setup command: `s3fs fine.data ~/fine/.cache -o passwd_file=${HOME}/.passwd-s3fs -o use_path_request_style`
+- using [s3fs](https://github.com/s3fs-fuse/s3fs-fuse). setup command:
+```
+s3fs fine.data ~/fine/.cache -o passwd_file=${HOME}/.passwd-s3fs -o use_path_request_style
+```
 - env setup:
 ```
 export PYTHONPATH=~/fine/src:$PYTHONPATH
