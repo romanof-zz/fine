@@ -38,7 +38,7 @@ class Bet:
                         dir=stat.type,
                         change=stat.percent_change * 100),
                    self.TYPE_STOCK, stat.ticker_result.stock,
-                   "[{stock} : {price}] might go {dir} by {change:.2f}% in {frame} days, after hitting {period}d {function} with {percent:.2f} chance".format(
+                   "[{stock} : {price}] might go {dir} by {change:.2f}% in {frame} days, after hitting {period}d {function} with {percent:.2f}% chance".format(
                        stock=stat.ticker_result.stock,
                        price=stat.ticker_result.current.adj_close,
                        dir=stat.type,

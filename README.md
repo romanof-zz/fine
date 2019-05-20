@@ -40,3 +40,8 @@ These guiding principles, along with principles of a typical worker cooperative,
 - [all weather fund](https://www.iwillteachyoutoberich.com/blog/all-weather-portfolio/)
 - [portfolio risk distribution article](https://macro-ops.com/ray-dalio-portfolio-allocation-strategy-holy-grail/)
 - [options trading](http://www.theoptionsguide.com/)
+
+
+## dev setup
+
+- using [s3fs](https://github.com/s3fs-fuse/s3fs-fuse). Setup command: `s3fs fine.data ~/fine/.cache -o passwd_file=${HOME}/.passwd-s3fs -o use_path_request_style`
