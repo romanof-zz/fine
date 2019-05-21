@@ -1,12 +1,17 @@
-import datetime
+class Stock:
+    def __init__(self, symbol, name, category):
+        self.symbol = symbol
+        self.name = name
+        self.category = category
 
 class Ticker:
     DAILY = "daily"
+    INTRADAY = "5min"
 
-    def __init__(self, type, stock, date, open, close, low, high, adj_close, volume):
+    def __init__(self, type, stock, time, open, close, low, high, adj_close, volume):
         self.type = type
         self.stock = stock
-        self.date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        self.time = time
         self.open = float(open)
         self.close = float(close)
         self.low = float(low)
@@ -15,13 +20,18 @@ class Ticker:
         self.volume = int(volume)
 
     def __str__(self):
-        return "[{s} {d}] open: {o} close: {c} high: {h} low: {l} ".format(
+        return "[{s}@{t}] open: {o} close: {c} high: {h} low: {l}, vol: {v}".format(
             s=self.stock,
-            d=self.date,
+            t=self.time,
             o=self.open,
             c=self.close,
             h=self.high,
-            l=self.low)
+            l=self.low,
+            v=self.volume)
+
+    def to_csv(self):
+        return "{},{:.4f},{:.4f},{:.4f},{:.4f},{:.4f},{}".format(self.time.strftime('%Y-%m-%d %H:%M:%S'),
+           self.open, self.close, self.low, self.high, self.adj_close, self.volume)
 
 class TickerAnalysisStats:
     UP = "up"
