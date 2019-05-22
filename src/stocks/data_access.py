@@ -62,10 +62,10 @@ class TickerDataAccess:
                 tickers = {}
                 for row in reader:
                     try:
-                        time = datetime.datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S')
-                        date_key = time.strftime('%Y-%m-%d')
+                        t = datetime.datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S')
+                        date_key = t.strftime('%Y-%m-%d')
                         if not date_key in tickers: tickers[date_key] = []
-                        tickers[date_key].append(Ticker(Ticker.INTRADAY, stock, time, row[1], row[4], row[3], row[2], "0.0", row[5]))
+                        tickers[date_key].append(Ticker(Ticker.INTRADAY, stock, t, row[1], row[4], row[3], row[2], "0.0", row[5]))
                     except ValueError:
                         continue
 
@@ -74,6 +74,8 @@ class TickerDataAccess:
                     data += "\n".join(map(lambda t: t.to_csv(), tickers[key]))
                     self.storage.put(self.__name_key(stock, key), data)
                     self.logger.info("=== finished updating {k} ===".format(k=key))
+
+                time.sleep(5)
             except HTTPError:
                 self.logger.error("=== {s} failed intraday update ===".format(s=stock))
 
