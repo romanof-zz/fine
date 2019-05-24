@@ -8,14 +8,32 @@ from botocore.exceptions import ClientError
 from .models import Ticker, Stock
 
 class StockDataAccess:
-    FILE = 'stocks.csv'
-
     def __init__(self, storage):
         self.storage = storage
 
-    def load(self):
-        reader = csv.reader(io.StringIO(self.storage.get(self.FILE)), delimiter=',')
-        return [Stock(row[0], row[1], row[2]) for row in reader]
+    def all_updated_today(self):
+        date = datetime.datetime.now().strftime('%Y-%m-%d')
+        return self.__load("select * from fine.stocks where daily_updated = timestamp('{}') and deleted = 0".format(date))
+
+    def load_one(self, symbol):
+        return self.__load("select * from fine.stocks where symbol='{}'".format(symbol))[0]
+
+    def load_not_updated(self, type, limit=None):
+        field = "daily_updated" if type != Ticker.INTRADAY else "intraday_updated"
+        date = datetime.datetime.now().strftime('%Y-%m-%d')
+        q = "select * from fine.stocks where {} < timestamp('{}') and deleted = 0".format(field, date)
+        if limit: q += " limit {}".format(limit)
+        return self.__load(q)
+
+    def update_date(self, type, stock):
+        field = "daily_updated" if type != Ticker.INTRADAY else "intraday_updated"
+        date = datetime.datetime.now().strftime('%Y-%m-%d')
+        self.storage.execute("update fine.stocks set {} = timestamp('{}') where symbol={}".format(field, date, stock.symbol))
+
+    def __load(self, query):
+        return [Stock(row['symbol'],row['name'], row['sector'],
+            row['industry'], row['location'], row['source'], row['cik'],
+            row['daily_updated'], row['intraday_updated']) for row in self.storage.load(query)]
 
 class TickerDataAccess:
     DIR = "tickers"
@@ -27,8 +45,9 @@ class TickerDataAccess:
     INTRADAY_URL_BASE = "https://www.alphavantage.co/query"
     INTRADAY_FUNC = "TIME_SERIES_INTRADAY"
 
-    def __init__(self, root, storage, logger, token, auth_cookie, app_key):
+    def __init__(self, root, stock_access, storage, logger, token, auth_cookie, app_key):
         self.path = "{r}/.cache".format(r=root)
+        self.stock_access = stock_access
         self.storage = storage
         self.logger = logger
         self.token = token
@@ -46,6 +65,7 @@ class TickerDataAccess:
                 i=self.DAILY_INTERVAL, e=self.DAILY_EVENTS, t=self.token)
             try:
                 self.storage.put(self.__name_key(stock, Ticker.DAILY), opener.open(url).read())
+                self.stock_access.update_date(Ticker.DAILY, stock)
                 self.logger.info("=== finished updating {s} ===".format(s=stock))
             except HTTPError:
                 self.logger.error("=== {s} failed to update ===".format(s=stock))
@@ -75,6 +95,7 @@ class TickerDataAccess:
                     self.storage.put(self.__name_key(stock, key), data)
                     self.logger.info("=== finished updating {k} ===".format(k=key))
 
+                self.stock_access.update_date(Ticker.INTRADAY, stock)
                 time.sleep(5)
             except HTTPError:
                 self.logger.error("=== {s} failed intraday update ===".format(s=stock))

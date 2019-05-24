@@ -1,20 +1,18 @@
 import argparse
 from app import APP
 from stocks.data_access import TickerDataAccess
+from stock.models import Ticker
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-s", "--stock", help="stock symbol")
 parser.add_argument("-t", "--type", default="daily", help="type of ticker")
 args = parser.parse_args()
 
-stocks = APP.stocks if args.stock is None else [args.stock]
-
-access = TickerDataAccess(APP.root, APP.s3, APP.logger,
-                 APP.secrets["yahoo"]["token"],
-                 APP.secrets["yahoo"]["auth_cookie"],
-                 APP.secrets["aplhavantage"]["app_key"])
-
-if args.type == "daily":
-    access.update_daily(stocks)
-if args.type == "intraday":
-    access.update_intraday(stocks)
+if args.stock is not None:
+    stocks = [APP.stock_access.load_one(args.stock)]
+if args.type == Ticker.DAILY:
+    if args.stock is None: stocks = APP.stock_access.load_not_updated(Ticker.DAILY)
+    APP.ticker_access.update_daily(stocks)
+if args.type == Ticker.INTRADAY:
+    if args.stock is None: stocks = APP.stock_access.load_not_updated(Ticker.INTRADAY, 50)
+    APP.ticker_access.update_intraday(stocks)

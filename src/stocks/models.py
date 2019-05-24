@@ -1,8 +1,14 @@
 class Stock:
-    def __init__(self, symbol, name, category):
+    def __init__(self, symbol, name, sector, industry, location, source, cik, daily_updated, intraday_updated):
         self.symbol = symbol
         self.name = name
-        self.category = category
+        self.sector = sector
+        self.industry = industry
+        self.location = location
+        self.source = source
+        self.cik = cik
+        self.daily_updated = daily_updated
+        self.intraday_updated = intraday_updated
 
 class Ticker:
     DAILY = "daily"
