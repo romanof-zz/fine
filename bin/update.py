@@ -1,7 +1,7 @@
 import argparse
 from app import APP
 from stocks.data_access import TickerDataAccess
-from stock.models import Ticker
+from stocks.models import Ticker
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-s", "--stock", help="stock symbol")
@@ -14,5 +14,5 @@ if args.type == Ticker.DAILY:
     if args.stock is None: stocks = APP.stock_access.load_not_updated(Ticker.DAILY)
     APP.ticker_access.update_daily(stocks)
 if args.type == Ticker.INTRADAY:
-    if args.stock is None: stocks = APP.stock_access.load_not_updated(Ticker.INTRADAY, 50)
+    if args.stock is None: stocks = APP.stock_access.load_not_updated(Ticker.INTRADAY)
     APP.ticker_access.update_intraday(stocks)
