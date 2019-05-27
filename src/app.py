@@ -35,8 +35,8 @@ class AppContext:
 
 APP = AppContext()
 
-def update_daily():
-    APP.update(None, Ticker.DAILY, None)
+def lambda_update_daily(context, data):
+    APP.update(None, Ticker.DAILY, 30)
 
-def update_intraday():
-    APP.update(None, Ticker.INTRADAY, None)
+def lambda_update_intraday(context, data):
+    APP.update(None, Ticker.INTRADAY, 30)
