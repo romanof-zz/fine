@@ -1,8 +1,8 @@
-import yaml
 import logging
-import os.path
+import os
 from storage import S3Storage, SQLStorage
 from stocks.data_access import StockDataAccess, TickerDataAccess
+from stocks.models import Ticker
 
 class AppContext:
     APP_BUCKET = "fine.data"
@@ -12,21 +12,31 @@ class AppContext:
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
         self.root = os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
-
-        with open("{dir}/secrets.yml".format(dir=self.root), 'r') as file:
-             self.secrets = yaml.load(file, Loader=yaml.BaseLoader)
-
         self.s3 = S3Storage(self.APP_BUCKET)
         self.sql = SQLStorage(self.logger,
-                              self.secrets['rds']['host'],
-                              self.secrets['rds']['user'],
-                              self.secrets['rds']['password'],
+                              os.environ["FINE_DB_HOST"],
+                              os.environ["FINE_DB_USER"],
+                              os.environ["FINE_DB_PASSWORD"],
                               self.DB_NAME)
-
         self.stock_access = StockDataAccess(self.sql)
         self.ticker_access = TickerDataAccess(self.root, self.stock_access, self.s3, self.logger,
-                                              self.secrets["yahoo"]["token"],
-                                              self.secrets["yahoo"]["auth_cookie"],
-                                              self.secrets["aplhavantage"]["app_key"])
+                                              os.environ["FINE_YAHOO_TOKEN"],
+                                              os.environ["FINE_YAHOO_COOKIE"],
+                                              os.environ["FINE_ALPHAVANTAGE_KEY"])
+
+    def update(self, stock, type, limit):
+        if stock is not None: stocks = [self.stock_access.load_one(stock)]
+        if type == Ticker.DAILY:
+            if stock is None: stocks = self.stock_access.load_not_updated(Ticker.DAILY, limit)
+            self.ticker_access.update_daily(stocks)
+        if type == Ticker.INTRADAY:
+            if stock is None: stocks = self.stock_access.load_not_updated(Ticker.INTRADAY, limit)
+            self.ticker_access.update_intraday(stocks)
 
 APP = AppContext()
+
+def update_daily():
+    APP.update(None, Ticker.DAILY, None)
+
+def update_intraday():
+    APP.update(None, Ticker.INTRADAY, None)

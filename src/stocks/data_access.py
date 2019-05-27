@@ -72,10 +72,10 @@ class TickerDataAccess:
     def update_intraday(self, stocks):
         for stock in stocks:
             try:
-                url = "{}?function={}&symbol={}&interval={}&apikey={}&outputsize=full&datatype=csv".format(
+                url = "{}?function={}&symbol={}&interval={}&apikey={}&outputsize=compact&datatype=csv".format(
                     self.INTRADAY_URL_BASE, self.INTRADAY_FUNC, stock.symbol, Ticker.INTRADAY, self.app_key)
                 data = urllib.request.urlopen(url).read().decode("utf-8")
-                self.logger.info("=== loaded intraday values of {s} ===".format(s=stock.symbol))
+                self.logger.info("=== {s} loading data ===".format(s=stock.symbol))
                 reader = csv.reader(io.StringIO(data), delimiter=',')
                 next(reader, None)  # skip the headers
                 tickers = {}
@@ -94,8 +94,11 @@ class TickerDataAccess:
                     self.storage.put(self.__name_key(stock.symbol, key), data)
                     self.logger.info("=== finished updating {k} ===".format(k=key))
 
-                self.stock_access.update_date(Ticker.INTRADAY, stock)
-                time.sleep(5)
+                if tickers:
+                    self.stock_access.update_date(Ticker.INTRADAY, stock)
+                    self.logger.info("=== {s} marked updated ===".format(s=stock.symbol))
+
+                time.sleep(3)
             except HTTPError as ex:
                 self.logger.error("=== {s} failed intraday update with error {e} ===".format(s=stock.symbol, e=str(ex)))
 

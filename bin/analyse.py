@@ -6,12 +6,13 @@ from stocks.analyzers import TickerAnalyzer
 from bets.models import Bet
 
 parser = argparse.ArgumentParser()
+parser.add_argument("-t", "--threshold", default=0.8, help="threshold to use for bets")
 parser.add_argument("-s", "--stock", help="stock to analize")
 parser.add_argument("-p", "--period", help="analysis period")
 parser.add_argument("-f", "--function", help="analysis function")
 args = parser.parse_args()
 
-threshold = float(APP.secrets["ticker"]["analysis_threshold"])
+threshold = float(args.threshold)
 if args.stock is not None:
     stocks = [APP.stock_access.load_one(args.stock)]
 else:
