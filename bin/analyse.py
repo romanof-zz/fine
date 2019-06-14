@@ -13,10 +13,7 @@ parser.add_argument("-f", "--function", help="analysis function")
 args = parser.parse_args()
 
 threshold = float(args.threshold)
-if args.stock is not None:
-    stocks = [APP.stock_access.load_one(args.stock)]
-else:
-    stocks = APP.stock_access.all_updated_today()
+stocks = [APP.stock_access.load_one(args.stock)] if args.stock is not None else APP.stock_access.load_updated_today()
 
 with open("bets.yml", "w+") as file:
     for stock in stocks:

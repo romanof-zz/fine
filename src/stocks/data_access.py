@@ -1,38 +1,43 @@
-import datetime
+from datetime import date
+from datetime import datetime
 import time
 import csv
 import io
+import yaml
 import urllib.request
 from urllib.error import HTTPError
 from botocore.exceptions import ClientError
 from .models import Ticker, Stock
 
 class StockDataAccess:
+    FILE = "stocks/all.yml"
+
     def __init__(self, storage):
         self.storage = storage
+        stocks = yaml.load(self.storage.get(self.FILE), Loader=yaml.FullLoader)
+        self.stocks = [] if stocks is None else stocks
 
-    def all_updated_today(self):
-        date = datetime.datetime.now().strftime('%Y-%m-%d')
-        return self.__load("select * from fine.stocks where daily_updated = timestamp('{}') and deleted = 0".format(date))
+    def load_updated_today(self):
+        return filter(lambda s: s.daily_updated > datetime.combine(date.today(), datetime.min.time()), self.stocks)
 
     def load_one(self, symbol):
-        return self.__load("select * from fine.stocks where symbol='{}'".format(symbol))[0]
+        return next(filter(lambda s: s.symbol == symbol, self.stocks) or [], None)
 
-    def load_not_updated(self, type, limit=None):
-        field = "daily_updated" if type != Ticker.INTRADAY else "intraday_updated"
-        date = datetime.datetime.now().strftime('%Y-%m-%d')
-        q = "select * from fine.stocks where {} < timestamp('{}') and deleted = 0".format(field, date)
-        if limit: q += " limit {}".format(limit)
-        return self.__load(q)
+    def load_not_updated(self, type, limit):
+        update_prop = "daily_updated" if type == Ticker.DAILY else "intraday_updated"
+        today_start = datetime.combine(date.today(), datetime.min.time())
+        stocks = filter(lambda s: getattr(s, update_prop) < today_start, self.stocks)
+        return list(stocks)[:limit]
 
-    def update_date(self, type, stock):
-        field = "daily_updated" if type != Ticker.INTRADAY else "intraday_updated"
-        date = datetime.datetime.now().strftime('%Y-%m-%d')
-        self.storage.execute("update fine.stocks set {} = timestamp('{}') where symbol='{}'".format(field, date, stock.symbol))
+    def update_now(self, stock, type):
+        loaded_stock = self.load_one(stock.symbol)
+        if type == Ticker.DAILY:
+            loaded_stock.daily_updated = datetime.utcnow()
+        if type == Ticker.INTRADAY:
+            loaded_stock.intraday_updated = datetime.utcnow()
 
-    def __load(self, query):
-        return [Stock(row[0],row[1], row[2], row[3], row[4], row[6], row[5],
-                      row[7], row[8]) for row in self.storage.load(query)]
+    def store(self):
+        self.storage.put(self.FILE, yaml.dump(self.stocks))
 
 class TickerDataAccess:
     DIR = "tickers"
@@ -64,15 +69,16 @@ class TickerDataAccess:
                 i=self.DAILY_INTERVAL, e=self.DAILY_EVENTS, t=self.token)
             try:
                 self.storage.put(self.__name_key(stock.symbol, Ticker.DAILY), opener.open(url).read())
-                self.stock_access.update_date(Ticker.DAILY, stock)
+                self.stock_access.update_now(stock, Ticker.DAILY)
                 self.logger.info("=== finished updating {s} ===".format(s=stock.symbol))
             except HTTPError:
                 self.logger.error("=== {s} failed to update ===".format(s=stock.symbol))
+        self.stock_access.store()
 
     def update_intraday(self, stocks):
         for stock in stocks:
             try:
-                url = "{}?function={}&symbol={}&interval={}&apikey={}&outputsize=compact&datatype=csv".format(
+                url = "{}?function={}&symbol={}&interval={}&apikey={}&outputsize=full&datatype=csv".format(
                     self.INTRADAY_URL_BASE, self.INTRADAY_FUNC, stock.symbol, Ticker.INTRADAY, self.app_key)
                 data = urllib.request.urlopen(url).read().decode("utf-8")
                 self.logger.info("=== {s} loading data ===".format(s=stock.symbol))
@@ -81,7 +87,7 @@ class TickerDataAccess:
                 tickers = {}
                 for row in reader:
                     try:
-                        t = datetime.datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S')
+                        t = datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S')
                         date_key = t.strftime('%Y-%m-%d')
                         if not date_key in tickers: tickers[date_key] = []
                         tickers[date_key].append(Ticker(Ticker.INTRADAY, stock.symbol, t, row[1], row[4], row[3], row[2], "0.0", row[5]))
@@ -95,12 +101,13 @@ class TickerDataAccess:
                     self.logger.info("=== finished updating {k} ===".format(k=key))
 
                 if tickers:
-                    self.stock_access.update_date(Ticker.INTRADAY, stock)
+                    self.stock_access.update_now(stock, Ticker.INTRADAY)
                     self.logger.info("=== {s} marked updated ===".format(s=stock.symbol))
 
                 time.sleep(3)
             except HTTPError as ex:
                 self.logger.error("=== {s} failed intraday update with error {e} ===".format(s=stock.symbol, e=str(ex)))
+        self.stock_access.store()
 
     def load(self, stocks):
         return self.__load(stocks, Ticker.DAILY)
@@ -114,7 +121,7 @@ class TickerDataAccess:
                 next(reader, None)  # skip the headers
                 for row in reader:
                     try:
-                        time = datetime.datetime.strptime(row[0], '%Y-%m-%d')
+                        time = datetime.strptime(row[0], '%Y-%m-%d')
                         tickers.append(Ticker(type, stock.symbol, time, row[1], row[2], row[3], row[4], row[5], row[6]))
                     except ValueError:
                         continue
