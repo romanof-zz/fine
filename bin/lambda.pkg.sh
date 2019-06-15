@@ -1,3 +1,4 @@
+cd ..
 mkdir lambda &&
 cp -r src/ lambda &&
 pip3 install -U -r requirements.txt -t lambda &&

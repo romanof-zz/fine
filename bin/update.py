@@ -1,5 +1,5 @@
 import argparse
-from app import APP
+from app import AppContext
 from stocks.data_access import TickerDataAccess
 from stocks.models import Ticker
 
@@ -9,4 +9,4 @@ parser.add_argument("-l", "--limit", default=100, help="number of tickers to upd
 parser.add_argument("-t", "--type", default="daily", help="type of ticker")
 args = parser.parse_args()
 
-APP.update(args.stock, args.type, int(args.limit))
+AppContext().update(args.stock, args.type, int(args.limit))

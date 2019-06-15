@@ -68,20 +68,23 @@ class TickerDataAccess:
                 b=self.DAILY_URL_BASE, s=stock.symbol, p1=0, p2=int(time.time()),
                 i=self.DAILY_INTERVAL, e=self.DAILY_EVENTS, t=self.token)
             try:
+                self.logger.info("daily update {}".format(stock.symbol))
+                self.logger.debug("update url: {}".format(url))
                 self.storage.put(self.__name_key(stock.symbol, Ticker.DAILY), opener.open(url).read())
                 self.stock_access.update_now(stock, Ticker.DAILY)
-                self.logger.info("=== finished updating {s} ===".format(s=stock.symbol))
+                self.logger.info("finished updating {}".format(stock.symbol))
             except HTTPError:
-                self.logger.error("=== {s} failed to update ===".format(s=stock.symbol))
+                self.logger.error("{} failed to update".format(stock.symbol))
         self.stock_access.store()
 
     def update_intraday(self, stocks):
         for stock in stocks:
             try:
-                url = "{}?function={}&symbol={}&interval={}&apikey={}&outputsize=full&datatype=csv".format(
+                url = "{}?function={}&symbol={}&interval={}&apikey={}&outputsize=compact&datatype=csv".format(
                     self.INTRADAY_URL_BASE, self.INTRADAY_FUNC, stock.symbol, Ticker.INTRADAY, self.app_key)
+                self.logger.info("{s} loading data".format(s=stock.symbol))
+                self.logger.debug("stock url: {}".format(url))
                 data = urllib.request.urlopen(url).read().decode("utf-8")
-                self.logger.info("=== {s} loading data ===".format(s=stock.symbol))
                 reader = csv.reader(io.StringIO(data), delimiter=',')
                 next(reader, None)  # skip the headers
                 tickers = {}
@@ -93,20 +96,20 @@ class TickerDataAccess:
                         tickers[date_key].append(Ticker(Ticker.INTRADAY, stock.symbol, t, row[1], row[4], row[3], row[2], "0.0", row[5]))
                     except ValueError:
                         continue
+                        time.sleep(5)
 
                 for key in tickers:
                     data = "time,open,close,low,high,adj_close,volume\n"
                     data += "\n".join(map(lambda t: t.to_csv(), tickers[key]))
                     self.storage.put(self.__name_key(stock.symbol, key), data)
-                    self.logger.info("=== finished updating {k} ===".format(k=key))
+                    self.logger.info("finished updating {k}".format(k=key))
 
                 if tickers:
                     self.stock_access.update_now(stock, Ticker.INTRADAY)
-                    self.logger.info("=== {s} marked updated ===".format(s=stock.symbol))
+                    self.logger.info("{s} marked updated".format(s=stock.symbol))
 
-                time.sleep(3)
             except HTTPError as ex:
-                self.logger.error("=== {s} failed intraday update with error {e} ===".format(s=stock.symbol, e=str(ex)))
+                self.logger.error("{s} failed intraday update with error {e}".format(s=stock.symbol, e=str(ex)))
         self.stock_access.store()
 
     def load(self, stocks):

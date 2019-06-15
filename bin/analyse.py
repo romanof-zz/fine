@@ -1,6 +1,6 @@
 import yaml
 import argparse
-from app import APP
+from app import AppContext
 
 from stocks.analyzers import TickerAnalyzer
 from bets.models import Bet
@@ -11,6 +11,8 @@ parser.add_argument("-s", "--stock", help="stock to analize")
 parser.add_argument("-p", "--period", help="analysis period")
 parser.add_argument("-f", "--function", help="analysis function")
 args = parser.parse_args()
+
+APP = AppContext()
 
 threshold = float(args.threshold)
 stocks = [APP.stock_access.load_one(args.stock)] if args.stock is not None else APP.stock_access.load_updated_today()
