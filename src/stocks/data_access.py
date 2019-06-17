@@ -12,7 +12,8 @@ from .models import Ticker, Stock
 class StockDataAccess:
     FILE = "stocks/all.yml"
 
-    def __init__(self, storage):
+    def __init__(self, logger, storage):
+        self.logger = logger
         self.storage = storage
         stocks = yaml.load(self.storage.get(self.FILE), Loader=yaml.FullLoader)
         self.stocks = [] if stocks is None else stocks
@@ -26,8 +27,9 @@ class StockDataAccess:
     def load_not_updated(self, type, limit):
         update_prop = "daily_updated" if type == Ticker.DAILY else "intraday_updated"
         today_start = datetime.combine(date.today(), datetime.min.time())
-        stocks = filter(lambda s: getattr(s, update_prop) < today_start, self.stocks)
-        return list(stocks)[:limit]
+        stocks = list(filter(lambda s: getattr(s, update_prop) < today_start, self.stocks))
+        self.logger.info("type {t} total: {cnt}".format(t=type, cnt=len(stocks)))
+        return stocks[:limit]
 
     def update_now(self, stock, type):
         loaded_stock = self.load_one(stock.symbol)
@@ -48,6 +50,7 @@ class TickerDataAccess:
 
     INTRADAY_URL_BASE = "https://www.alphavantage.co/query"
     INTRADAY_FUNC = "TIME_SERIES_INTRADAY"
+    INTRADAY_TIMEOUT = 2 # 3 sec timeout
 
     def __init__(self, root, stock_access, storage, logger, token, auth_cookie, app_key):
         self.path = "{r}/.cache".format(r=root)
@@ -78,25 +81,37 @@ class TickerDataAccess:
         self.stock_access.store()
 
     def update_intraday(self, stocks):
+        timeout = self.INTRADAY_TIMEOUT
+
         for stock in stocks:
             try:
+                self.logger.info("{s} loading data".format(s=stock.symbol))
+
                 url = "{}?function={}&symbol={}&interval={}&apikey={}&outputsize=compact&datatype=csv".format(
                     self.INTRADAY_URL_BASE, self.INTRADAY_FUNC, stock.symbol, Ticker.INTRADAY, self.app_key)
-                self.logger.info("{s} loading data".format(s=stock.symbol))
                 self.logger.debug("stock url: {}".format(url))
                 data = urllib.request.urlopen(url).read().decode("utf-8")
                 reader = csv.reader(io.StringIO(data), delimiter=',')
-                next(reader, None)  # skip the headers
+
+                header = next(reader, None)  # skip the headers
+                if header is None:
+                    time.sleep(timeout)
+                    self.logger.info("trying to chill for {} sec}".format(timeout))
+                    timeout = timeout * timeout
+                    self.logger.info("new timeout {} sec".format(timeout))
+
                 tickers = {}
                 for row in reader:
                     try:
+                        self.logger.debug("getting data for {}".format(row[0]))
+                        timeout = self.INTRADAY_TIMEOUT # reset exp timeout when getting data.
                         t = datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S')
                         date_key = t.strftime('%Y-%m-%d')
                         if not date_key in tickers: tickers[date_key] = []
                         tickers[date_key].append(Ticker(Ticker.INTRADAY, stock.symbol, t, row[1], row[4], row[3], row[2], "0.0", row[5]))
-                    except ValueError:
+                    except ValueError as e:
+                        self.logger.error("failed to load intraday row for {s} stock with error: {e}".format(s=stock.symbol, e=str(e)))
                         continue
-                        time.sleep(5)
 
                 for key in tickers:
                     data = "time,open,close,low,high,adj_close,volume\n"

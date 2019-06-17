@@ -1,7 +1,5 @@
 import argparse
 from app import AppContext
-from stocks.data_access import TickerDataAccess
-from stocks.models import Ticker
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-s", "--stock", help="stock symbol")
