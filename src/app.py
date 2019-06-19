@@ -27,10 +27,12 @@ class AppContext:
         try:
             self.logger.info("update {t} type: requested {l} items".format(t=type, l=limit))
             stocks = [self.stock_access.load_one(stock)] if stock is not None else self.stock_access.load_not_updated(type, limit)
+            if not len(stocks): return False
             if type == Ticker.INTRADAY:
                 self.ticker_access.update_intraday(stocks)
             if type == Ticker.DAILY:
                 self.ticker_access.update_daily(stocks)
+            return True
         except KeyboardInterrupt:
             self.logger.error("properly finalizing interput")
             self.stock_access.store()
@@ -40,8 +42,9 @@ def lambda_update(event, context):
 
     for x in range(0,5):
         app.logger.info("update iter #{}".format(x))
-        app.update(None, Ticker.DAILY, 5)
-        app.update(None, Ticker.INTRADAY, 5)
+        daily_result = app.update(None, Ticker.DAILY, 5)
+        intraday_result = app.update(None, Ticker.INTRADAY, 5)
+        if not daily_result and not intraday_result: break
 
     app.logger.info("all updates finished.")
     return {'resultCode': 200}

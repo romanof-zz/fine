@@ -50,7 +50,7 @@ class TickerDataAccess:
 
     INTRADAY_URL_BASE = "https://www.alphavantage.co/query"
     INTRADAY_FUNC = "TIME_SERIES_INTRADAY"
-    INTRADAY_TIMEOUT = 2 # 3 sec timeout
+    INTRADAY_TIMEOUT = 10
 
     def __init__(self, root, stock_access, storage, logger, token, auth_cookie, app_key):
         self.path = "{r}/.cache".format(r=root)
@@ -81,6 +81,7 @@ class TickerDataAccess:
         self.stock_access.store()
 
     def update_intraday(self, stocks):
+        error = False
         timeout = self.INTRADAY_TIMEOUT
 
         for stock in stocks:
@@ -92,26 +93,29 @@ class TickerDataAccess:
                 self.logger.debug("stock url: {}".format(url))
                 data = urllib.request.urlopen(url).read().decode("utf-8")
                 reader = csv.reader(io.StringIO(data), delimiter=',')
-
                 header = next(reader, None)  # skip the headers
-                if header is None:
-                    time.sleep(timeout)
-                    self.logger.info("trying to chill for {} sec}".format(timeout))
-                    timeout = timeout * timeout
-                    self.logger.info("new timeout {} sec".format(timeout))
 
                 tickers = {}
                 for row in reader:
                     try:
                         self.logger.debug("getting data for {}".format(row[0]))
-                        timeout = self.INTRADAY_TIMEOUT # reset exp timeout when getting data.
                         t = datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S')
                         date_key = t.strftime('%Y-%m-%d')
                         if not date_key in tickers: tickers[date_key] = []
                         tickers[date_key].append(Ticker(Ticker.INTRADAY, stock.symbol, t, row[1], row[4], row[3], row[2], "0.0", row[5]))
                     except ValueError as e:
                         self.logger.error("failed to load intraday row for {s} stock with error: {e}".format(s=stock.symbol, e=str(e)))
-                        continue
+                        error = True
+                        break
+
+                if error:
+                    time.sleep(timeout)
+                    self.logger.info("sleep for {} sec".format(timeout))
+                    timeout += self.INTRADAY_TIMEOUT
+                    error = False
+                    continue
+
+                timeout = self.INTRADAY_TIMEOUT # reset exp timeout, when no error.
 
                 for key in tickers:
                     data = "time,open,close,low,high,adj_close,volume\n"
