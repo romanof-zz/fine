@@ -50,7 +50,7 @@ class TickerDataAccess:
 
     INTRADAY_URL_BASE = "https://www.alphavantage.co/query"
     INTRADAY_FUNC = "TIME_SERIES_INTRADAY"
-    INTRADAY_TIMEOUT = 10
+    INTRADAY_TIMEOUT = 15
 
     def __init__(self, root, stock_access, storage, logger, token, auth_cookie, app_key):
         self.path = "{r}/.cache".format(r=root)
@@ -82,8 +82,6 @@ class TickerDataAccess:
 
     def update_intraday(self, stocks):
         error = False
-        timeout = self.INTRADAY_TIMEOUT
-
         for stock in stocks:
             try:
                 self.logger.info("{s} loading data".format(s=stock.symbol))
@@ -109,13 +107,10 @@ class TickerDataAccess:
                         break
 
                 if error:
-                    time.sleep(timeout)
-                    self.logger.info("sleep for {} sec".format(timeout))
-                    timeout += self.INTRADAY_TIMEOUT
+                    self.logger.info("sleep for {} sec".format(self.INTRADAY_TIMEOUT))
+                    time.sleep(self.INTRADAY_TIMEOUT)
                     error = False
                     continue
-
-                timeout = self.INTRADAY_TIMEOUT # reset exp timeout, when no error.
 
                 for key in tickers:
                     data = "time,open,close,low,high,adj_close,volume\n"
@@ -129,6 +124,7 @@ class TickerDataAccess:
 
             except HTTPError as ex:
                 self.logger.error("{s} failed intraday update with error {e}".format(s=stock.symbol, e=str(ex)))
+
         self.stock_access.store()
 
     def load(self, stocks):
