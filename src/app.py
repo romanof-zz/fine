@@ -1,8 +1,14 @@
 import logging
 import os
+
 from storage import S3Storage
+
 from stocks.data_access import StockDataAccess, TickerDataAccess
+from stocks.analyzers import TickerAnalyzer
 from stocks.models import Ticker
+
+from bets.models import Bet
+from bets.simulator import BetSimulator
 
 class AppContext:
     APP_BUCKET = "fine.data"
@@ -22,6 +28,33 @@ class AppContext:
                                               os.environ["FINE_YAHOO_TOKEN"],
                                               os.environ["FINE_YAHOO_COOKIE"],
                                               os.environ["FINE_ALPHAVANTAGE_KEY"])
+        self.bet_simulator = BetSimulator(self.logger, self.ticker_access)
+
+    def load_tickers(self, stock):
+        return self.ticker_access.load_daily(stock)
+
+    def load_stocks(self, stock, updated_only):
+        if stock is not None:
+            return [self.stock_access.load_one(stock)]
+        elif updated_only:
+            return self.stock_access.load_updated_today()
+        else:
+            return self.stock_access.stocks
+
+    def analyze_and_bet(self, tickers, period, function, threshold):
+        bets = []
+        results = TickerAnalyzer(tickers, self.logger).analyze(period, function)
+        for result in results:
+            for stat in result.to_stats_above_chance_value(threshold):
+                if stat: bets.append(Bet.create(stat))
+
+        self.logger.info("produced {b} bets from {r} results with threshold: {t}".format(
+            b=len(bets), r=len(results), t=threshold))
+
+        return bets
+
+    def simulate_bet(self, bet):
+        return self.bet_simulator.simulate(bet)
 
     def update(self, stock, type, limit):
         try:

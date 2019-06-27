@@ -97,8 +97,8 @@ class TickerDataAccess:
                 for row in reader:
                     try:
                         self.logger.debug("getting data for {}".format(row[0]))
-                        t = datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S')
-                        date_key = t.strftime('%Y-%m-%d')
+                        t = datetime.strptime(row[0], Ticker.INTRADAY_TIME_FORMAT)
+                        date_key = t.strftime(Ticker.DAILY_TIME_FORMAT)
                         if not date_key in tickers: tickers[date_key] = []
                         tickers[date_key].append(Ticker(Ticker.INTRADAY, stock.symbol, t, row[1], row[4], row[3], row[2], "0.0", row[5]))
                     except ValueError as e:
@@ -127,24 +127,26 @@ class TickerDataAccess:
 
         self.stock_access.store()
 
-    def load(self, stocks):
-        return self.__load(stocks, Ticker.DAILY)
+    def load_daily(self, stock):
+        return self.__load(stock, Ticker.DAILY, Ticker.DAILY, Ticker.DAILY_TIME_FORMAT)
 
-    def __load(self, stocks, type):
+
+    def load_intraday(self, stock, date):
+        tickers = self.__load(stock, Ticker.INTRADAY, date.strftime(Ticker.DAILY_TIME_FORMAT), Ticker.INTRADAY_TIME_FORMAT)
+        # intraday tickers are recorded in reverse order
+        return list(reversed(tickers))
+
+    def __load(self, stock, type, key, time_format):
         tickers = []
-        for stock in stocks:
-            key = self.__name_key(stock.symbol, type)
+        filename = self.__name_key(stock.symbol, key)
+        reader = csv.reader(io.StringIO(self.storage.get(filename)), delimiter=',')
+        next(reader, None)  # skip the headers
+        for row in reader:
             try:
-                reader = csv.reader(io.StringIO(self.storage.get(key)), delimiter=',')
-                next(reader, None)  # skip the headers
-                for row in reader:
-                    try:
-                        time = datetime.strptime(row[0], '%Y-%m-%d')
-                        tickers.append(Ticker(type, stock.symbol, time, row[1], row[2], row[3], row[4], row[5], row[6]))
-                    except ValueError:
-                        continue
-            except ClientError:
-                self.logger.error("{k} file failed to load.".format(k=key))
+                time = datetime.strptime(row[0], time_format)
+                tickers.append(Ticker(type, stock, time, row[1], row[2], row[3], row[4], row[5], row[6]))
+            except ValueError:
+                continue
         return tickers
 
     def __name_key(self, symbol, key):

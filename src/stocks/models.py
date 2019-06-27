@@ -14,6 +14,9 @@ class Ticker:
     DAILY = "daily"
     INTRADAY = "5min"
 
+    DAILY_TIME_FORMAT = '%Y-%m-%d'
+    INTRADAY_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+
     def __init__(self, type, stock, time, open, close, low, high, adj_close, volume):
         self.type = type
         self.stock = stock
@@ -36,7 +39,7 @@ class Ticker:
             v=self.volume)
 
     def to_csv(self):
-        return "{},{:.4f},{:.4f},{:.4f},{:.4f},{:.4f},{}".format(self.time.strftime('%Y-%m-%d %H:%M:%S'),
+        return "{},{:.4f},{:.4f},{:.4f},{:.4f},{:.4f},{}".format(self.time.strftime(self.INTRADAY_TIME_FORMAT),
            self.open, self.close, self.low, self.high, self.adj_close, self.volume)
 
 class TickerAnalysisStats:
@@ -117,12 +120,16 @@ class TickerAnalysisResult:
     def __str__(self):
         self.calculate_stats()
 
-        ret = ""
-        for offset in self.RESULT_FRAMES:
-            ret += "\n{s} - {p}d {f} ({cnt} events) ".format(s=self.stock, p=self.period, f=self.function, cnt=self.count)
-            if not self.count: return ret
+        ret = "\n{s} on {d} - {p}d {f} ({cnt} events) ".format(
+            s=self.stock.symbol,
+            d=self.current.time,
+            p=self.period,
+            f=self.function,
+            cnt=self.count)
 
-            ret += "[{o}d]: ".format(o=offset)
+        if not self.count: return ret
+        for offset in self.RESULT_FRAMES:
+            ret += "\n[{o}d]: ".format(o=offset)
             ret += "max: {max:.2f}%; min: -{min:.2f}%;".format(
                 max=self.stats[offset][TickerAnalysisStats.UP].extreme * 100,
                 min=self.stats[offset][TickerAnalysisStats.DOWN].extreme * 100)
