@@ -67,8 +67,7 @@ class TickerAnalysisStats:
         if self.count: self.percent_change = self.sum_percent_change / self.count
 
 class TickerAnalysisResult:
-    RESULT_FRAMES = [1, 3, 7, 14, 30]
-    MIN_CONSIDERRED = 0.01
+    RESULT_FRAMES = [5, 10, 20]
 
     def __init__(self, stock, current, tickers, period, function):
         self.stock = stock
@@ -86,7 +85,7 @@ class TickerAnalysisResult:
 
     def add_ticker(self, offset):
         self.ticker_results[self.count] = []
-        for idx in range(offset, offset + 31):
+        for idx in range(offset, offset + 21):
             try:
                 self.ticker_results[self.count].append(self.tickers[idx])
             except IndexError:
@@ -107,15 +106,6 @@ class TickerAnalysisResult:
                 self.stats[frame][type].record_percent_change(percent_change)
 
         [self.stats[frame][type].update_counts() for type in TickerAnalysisStats.TYPES for frame in self.RESULT_FRAMES]
-
-    def to_stats_above_chance_value(self, chance_value):
-        stats = []
-        for frame in self.RESULT_FRAMES:
-            for type in TickerAnalysisStats.TYPES:
-                if (self.stats[frame][type].chance >= chance_value and
-                   self.stats[frame][type].percent_change >= self.MIN_CONSIDERRED):
-                    stats.append(self.stats[frame][type])
-        return stats
 
     def __str__(self):
         self.calculate_stats()

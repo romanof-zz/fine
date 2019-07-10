@@ -28,14 +28,16 @@ APP = AppContext()
 
 stocks = APP.load_stocks(args.stock, args.today)
 
-bets = []
-for stock in stocks:
+signals = []
+for idx, stock in enumerate(stocks):
     tickers = APP.load_tickers(stock)
     time = args.date if args.date is not None else datetime.today()
     for d in range(0, args.interval):
-        bets += APP.analyze_and_bet(list(filter(lambda t: t.time <= time - timedelta(days=d), tickers)),
+        signal = APP.analyze(list(filter(lambda t: t.time <= time - timedelta(days=d), tickers)),
             args.period, args.function, args.threshold)
+        if signal: signals.append(signal)
+    print("processed {} of {} stocks.".format(idx, len(stocks)))
 
-if args.simulate: [APP.simulate_bet(bet) for bet in bets]
+if args.simulate: [APP.simulate(signal) for signal in signals]
 
-APP.logger.info("bets (total={}):\n{}".format(len(bets), yaml.dump(bets)))
+APP.logger.info("signals (total={}):\n{}".format(len(signals), yaml.dump(signals)))

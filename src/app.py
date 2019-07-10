@@ -5,10 +5,10 @@ from storage import S3Storage
 
 from stocks.data_access import StockDataAccess, TickerDataAccess
 from stocks.analyzers import TickerAnalyzer
-from stocks.models import Ticker
+from stocks.models import Ticker, TickerAnalysisStats, TickerAnalysisResult
 
-from bets.models import Bet
-from bets.simulator import BetSimulator
+from bets.models import Signal
+from bets.simulator import Simulator
 
 class AppContext:
     APP_BUCKET = "fine.data"
@@ -28,7 +28,7 @@ class AppContext:
                                               os.environ["FINE_YAHOO_TOKEN"],
                                               os.environ["FINE_YAHOO_COOKIE"],
                                               os.environ["FINE_ALPHAVANTAGE_KEY"])
-        self.bet_simulator = BetSimulator(self.logger, self.ticker_access)
+        self.simulator = Simulator(self.logger, self.ticker_access)
 
     def load_tickers(self, stock):
         return self.ticker_access.load_daily(stock)
@@ -41,20 +41,19 @@ class AppContext:
         else:
             return self.stock_access.stocks
 
-    def analyze_and_bet(self, tickers, period, function, threshold):
-        bets = []
+    def analyze(self, tickers, period, function, threshold):
         results = TickerAnalyzer(tickers, self.logger).analyze(period, function)
-        for result in results:
-            for stat in result.to_stats_above_chance_value(threshold):
-                if stat: bets.append(Bet.create(stat))
+        # flatten stats
+        stats = [result.stats[frame][type] for type in TickerAnalysisStats.TYPES for frame in TickerAnalysisResult.RESULT_FRAMES for result in results]
+        # filter above threshold
+        stats = filter(lambda s: s.chance >= threshold and s.percent_change > 0 , stats)
+        # sort by chance, sample size and highest gain accordingly.
+        stats = sorted(stats, key = lambda s: (s.chance, s.count, s.percent_change), reverse=True)
 
-        self.logger.info("produced {b} bets from {r} results with threshold: {t}".format(
-            b=len(bets), r=len(results), t=threshold))
+        return Signal.from_ticker_stat(stats[0]) if len(stats) else None
 
-        return bets
-
-    def simulate_bet(self, bet):
-        return self.bet_simulator.simulate(bet)
+    def simulate(self, signal):
+        return self.simulator.simulate(signal)
 
     def update(self, stock, type, limit):
         try:
