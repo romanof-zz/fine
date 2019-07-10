@@ -36,7 +36,7 @@ for idx, stock in enumerate(stocks):
         signal = APP.analyze(list(filter(lambda t: t.time <= time - timedelta(days=d), tickers)),
             args.period, args.function, args.threshold)
         if signal: signals.append(signal)
-    print("processed {} of {} stocks.".format(idx, len(stocks)))
+    APP.logger.info("processed {} of {} stocks.".format(idx, len(stocks)))
 
 if args.simulate: [APP.simulate(signal) for signal in signals]
 
