@@ -10,6 +10,8 @@ from stocks.models import Ticker, TickerAnalysisStats, TickerAnalysisResult
 from bets.models import Signal
 from bets.simulator import Simulator
 
+from sentiment.access import TwitterDataAccess
+
 class AppContext:
     APP_BUCKET = "fine.data"
 
@@ -26,6 +28,12 @@ class AppContext:
                                               os.environ["FINE_YAHOO_TOKEN"],
                                               os.environ["FINE_YAHOO_COOKIE"],
                                               os.environ["FINE_ALPHAVANTAGE_KEY"])
+        self.twitter_access = TwitterDataAccess(self.s3, self.logger,
+                                                os.environ['FINE_TWEETER_CONSUMER_KEY'],
+                                                os.environ['FINE_TWEETER_CONSUMER_SECRET'],
+                                                os.environ['FINE_TWEETER_ACCESS_TOKEN'],
+                                                os.environ['FINE_TWEETER_ACCESS_SECRET'])
+
         self.simulator = Simulator(self.logger, self.ticker_access)
 
     def load_tickers(self, stock):
@@ -66,6 +74,9 @@ class AppContext:
         except KeyboardInterrupt:
             self.logger.error("properly finalizing interput")
             self.stock_access.store()
+
+    def twitter_update(self):
+        self.twitter_access.update_all()
 
 def lambda_update(event, context):
     app = AppContext()
