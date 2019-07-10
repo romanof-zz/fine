@@ -3,7 +3,7 @@ import os
 
 from storage import S3Storage
 
-from stocks.data_access import StockDataAccess, TickerDataAccess
+from stocks.access import StockDataAccess, TickerDataAccess
 from stocks.analyzers import TickerAnalyzer
 from stocks.models import Ticker, TickerAnalysisStats, TickerAnalysisResult
 
