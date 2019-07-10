@@ -12,7 +12,6 @@ from bets.simulator import Simulator
 
 class AppContext:
     APP_BUCKET = "fine.data"
-    DB_NAME = 'fine'
 
     def __init__(self):
         self.logger = logging.getLogger()
@@ -21,10 +20,9 @@ class AppContext:
                 self.logger.removeHandler(handler)
         logging.basicConfig(format='[%(levelname)s][%(asctime)s]: %(message)s',level=logging.INFO)
 
-        self.root = os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
         self.s3 = S3Storage(self.APP_BUCKET)
         self.stock_access = StockDataAccess(self.logger, self.s3)
-        self.ticker_access = TickerDataAccess(self.root, self.stock_access, self.s3, self.logger,
+        self.ticker_access = TickerDataAccess(self.stock_access, self.s3, self.logger,
                                               os.environ["FINE_YAHOO_TOKEN"],
                                               os.environ["FINE_YAHOO_COOKIE"],
                                               os.environ["FINE_ALPHAVANTAGE_KEY"])

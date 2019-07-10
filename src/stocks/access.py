@@ -52,8 +52,7 @@ class TickerDataAccess:
     INTRADAY_FUNC = "TIME_SERIES_INTRADAY"
     INTRADAY_TIMEOUT = 15
 
-    def __init__(self, root, stock_access, storage, logger, token, auth_cookie, app_key):
-        self.path = "{r}/.cache".format(r=root)
+    def __init__(self, stock_access, storage, logger, token, auth_cookie, app_key):
         self.stock_access = stock_access
         self.storage = storage
         self.logger = logger
