@@ -2,7 +2,6 @@ import io
 import os
 import sys
 import boto3
-import pymysql
 
 class S3Storage:
     def __init__(self, bucket):

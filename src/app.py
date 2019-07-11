@@ -78,7 +78,7 @@ class AppContext:
     def twitter_update(self):
         self.twitter_access.update_all()
 
-def lambda_update(event, context):
+def lambda_ticker_update(event, context):
     app = AppContext()
 
     for x in range(0,5):
@@ -87,5 +87,11 @@ def lambda_update(event, context):
         intraday_result = app.update(None, Ticker.INTRADAY, 5)
         if not daily_result and not intraday_result: break
 
+    app.logger.info("all updates finished.")
+    return {'resultCode': 200}
+
+def lambda_twitter_update(event, context):
+    app = AppContext()
+    app.twitter_update()
     app.logger.info("all updates finished.")
     return {'resultCode': 200}
