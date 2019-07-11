@@ -8,7 +8,7 @@ class Simulator:
         self.ticker_access = ticker_access
 
     def simulate(self, signal):
-        days = 1
+        trading_days = days = 1
         while(True):
             try:
                 # start simulation from next morning after event
@@ -24,11 +24,13 @@ class Simulator:
                     if signal.check_ticker(ticker): return True
 
                 # check ttl
-                if days == signal.ttl:
+                if trading_days == signal.ttl:
                     signal.exit_price = ticker.close
                     signal.exit_time = ticker.time
                     signal.exit_status = Signal.Status.EXPIRED
                     return True
+
+                trading_days+=1
 
             except ClientError:
                 self.logger.error("failed to load {s} on {t}".format(s=signal.stock.symbol, t=time))
