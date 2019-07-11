@@ -1,6 +1,5 @@
 import datetime
 import operator
-from pandas.tseries.offsets import BDay
 from stocks.models import TickerAnalysisStats
 
 class Signal:
@@ -12,7 +11,7 @@ class Signal:
         FAILURE = "failure"
         EXPIRED = "expired"
 
-    def __init__(self, stock, type, info, event_time, event_price, target_price, risk_price, expiration_time):
+    def __init__(self, stock, type, info, event_time, event_price, target_price, risk_price, ttl):
         # general data
         self.stock = stock
         self.type = type
@@ -23,10 +22,11 @@ class Signal:
         # bet limits
         self.target_price = target_price
         self.risk_price = risk_price
-        self.expiration_time = expiration_time
+        self.ttl = ttl
 
         # state tracking
         self.exit_status = self.Status.UNKNOWN
+        self.exit_time = None
         self.exit_price = None
 
     @classmethod
@@ -40,8 +40,6 @@ class Signal:
         # determine ratios
         target_ratio = getattr(operator, target_operator)(1, tstat.percent_change)
         risk_ratio = getattr(operator, risk_operator)(1, tstat.percent_change * self.RISK_DIVIATION)
-        # expiration time in business days including holidays.
-        expiration_time = (curr_time + BDay(tstat.result_frame)).to_pydatetime()
         # generating signal
         return Signal(tstat.ticker_result.stock, tstat.type,
                       "[ticker_analyser][{stock} : {price}] might go {dir} by {change:.2f}% in {frame} trading days, after hitting {period}d {function} with {percent:.2f}% chance ({event_cnt} events).".format(
@@ -55,33 +53,25 @@ class Signal:
                         percent=tstat.chance * 100,
                         event_cnt=tstat.count),
                    curr_time, curr_price,
-                   round(curr_price * target_ratio, 2), round(curr_price * risk_ratio, 2), expiration_time);
+                   round(curr_price * target_ratio, 2), round(curr_price * risk_ratio, 2), tstat.result_frame);
 
-    def update(self, ticker):
-        # do nothing if ticker is for other stock
-        if self.stock.symbol != ticker.stock.symbol: return False
-        updated = False
-
+    def check_ticker(self, ticker):
         # target
         if self.exit_status == self.Status.UNKNOWN and (
           (self.type == TickerAnalysisStats.UP and self.target_price <= ticker.high) or
           (self.type == TickerAnalysisStats.DOWN and self.target_price >= ticker.low)):
             self.exit_price = ticker.close
+            self.exit_time = ticker.time
             self.exit_status = self.Status.SUCCESS
-            updated = True
+            return True
 
         # risk
         if self.exit_status == self.Status.UNKNOWN and (
           (self.type == TickerAnalysisStats.UP and self.risk_price >= ticker.low) or
           (self.type == TickerAnalysisStats.DOWN and self.risk_price <= ticker.high)):
             self.exit_price = ticker.close
+            self.exit_time = ticker.time
             self.exit_status = self.Status.FAILURE
-            updated = True
+            return True
 
-        # expiration
-        if self.exit_status == self.Status.UNKNOWN and self.expiration_time < ticker.time:
-            self.exit_price = ticker.close
-            self.exit_status = self.Status.EXPIRED
-            updated = True
-
-        return updated
+        return False
