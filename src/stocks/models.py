@@ -69,8 +69,9 @@ class TickerAnalysisStats:
 class TickerAnalysisResult:
     RESULT_FRAMES = [5, 10, 20]
 
-    def __init__(self, stock, current, tickers, period, function):
+    def __init__(self, stock, frame, current, tickers, period, function):
         self.stock = stock
+        self.frames = [frame] if frame else self.RESULT_FRAMES
         self.current = current
         self.period = period
         self.function = function
@@ -78,7 +79,7 @@ class TickerAnalysisResult:
         self.count = 0
         self.ticker_results = {}
         self.stats = {}
-        for i in self.RESULT_FRAMES:
+        for i in self.frames:
             self.stats[i] = {}
             self.stats[i][TickerAnalysisStats.UP] = TickerAnalysisStats(self, i, TickerAnalysisStats.UP)
             self.stats[i][TickerAnalysisStats.DOWN] = TickerAnalysisStats(self, i, TickerAnalysisStats.DOWN)
@@ -97,7 +98,7 @@ class TickerAnalysisResult:
 
     def calculate_stats(self):
         for k in self.ticker_results:
-            for frame in self.RESULT_FRAMES:
+            for frame in self.frames:
                 tset = self.ticker_results[k]
                 if len(tset) <= frame: continue
 
@@ -105,7 +106,7 @@ class TickerAnalysisResult:
                 type = TickerAnalysisStats.UP if tset[0].adj_close < tset[frame].adj_close else TickerAnalysisStats.DOWN
                 self.stats[frame][type].record_percent_change(percent_change)
 
-        [self.stats[frame][type].update_counts() for type in TickerAnalysisStats.TYPES for frame in self.RESULT_FRAMES]
+        [self.stats[frame][type].update_counts() for type in TickerAnalysisStats.TYPES for frame in self.frames]
 
     def __str__(self):
         self.calculate_stats()
@@ -118,7 +119,7 @@ class TickerAnalysisResult:
             cnt=self.count)
 
         if not self.count: return ret
-        for offset in self.RESULT_FRAMES:
+        for offset in self.frames:
             ret += "\n[{o}d]: ".format(o=offset)
             ret += "max: {max:.2f}%; min: -{min:.2f}%;".format(
                 max=self.stats[offset][TickerAnalysisStats.UP].extreme * 100,

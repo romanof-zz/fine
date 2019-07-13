@@ -5,9 +5,10 @@ class TickerAnalyzer:
     FUNCTIONS=["high", "low"]
     PERIODS= [7, 14, 30, 90, 180, 365, 365*3, 365*5]
 
-    def __init__(self, tickers, logger):
+    def __init__(self, tickers, logger, frame):
         self.logger = logger
         self.tickers = tickers
+        self.frame = frame
 
     def high(self, tickers, start, period):
         max_high = 0
@@ -46,7 +47,7 @@ class TickerAnalyzer:
         return list(filter(lambda r: not r.empty(), results))
 
     def __analyze(self, tickers, reverse, stock, period, function):
-        result = TickerAnalysisResult(stock, tickers[0],  reverse, period, function)
+        result = TickerAnalysisResult(stock, self.frame, tickers[0], reverse, period, function)
 
         self.logger.debug("== analyze input: tickers={t}, period={p}, function={f}  ==".format(t=len(tickers), p=period, f=function))
         for idx, ticker in enumerate(tickers):

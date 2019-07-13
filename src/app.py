@@ -1,11 +1,12 @@
 import logging
 import os
+from datetime import timedelta
 
 from storage import S3Storage
 
 from stocks.access import StockDataAccess, TickerDataAccess
 from stocks.analyzers import TickerAnalyzer
-from stocks.models import Ticker, TickerAnalysisStats, TickerAnalysisResult
+from stocks.models import Ticker, TickerAnalysisStats
 
 from bets.models import Signal
 from bets.simulator import Simulator
@@ -47,10 +48,25 @@ class AppContext:
         else:
             return self.stock_access.stocks
 
-    def analyze(self, tickers, period, function, threshold):
-        results = TickerAnalyzer(tickers, self.logger).analyze(period, function)
+    def analyze_timeframe(self, stock, period, function, threshold, date, interval, frame):
+        signals = []
+        tickers = self.load_tickers(stock)
+        for d in range(0, interval):
+            signal = self.analyze(list(filter(lambda t: t.time <= date - timedelta(days=d), tickers)),
+                period, function, threshold, frame)
+            if signal: signals.append(signal)
+
+        self.logger.info("loaded {} tickers & produced {} signals for {}".format(len(tickers), len(signals), stock.symbol))
+        return signals
+
+    def analyze(self, tickers, period, function, threshold, frame):
+        results = TickerAnalyzer(tickers, self.logger, frame).analyze(period, function)
         # flatten stats
-        stats = [result.stats[frame][type] for type in TickerAnalysisStats.TYPES for frame in TickerAnalysisResult.RESULT_FRAMES for result in results]
+        stats = []
+        for result in results:
+            for frame in result.frames:
+                stats += [result.stats[frame][type] for type in TickerAnalysisStats.TYPES]
+
         # filter above threshold
         stats = filter(lambda s: s.chance >= threshold and s.percent_change > 0 , stats)
         # sort by chance, sample size and highest gain accordingly.
