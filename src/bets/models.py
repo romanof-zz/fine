@@ -11,6 +11,11 @@ class Signal:
         FAILURE = "failure"
         EXPIRED = "expired"
 
+    class Type:
+        BUY = 'buy'
+        SELL = 'sell'
+        HOLD = 'hold'
+
     def __init__(self, stock, type, info, event_time, event_price, target_price, risk_price, ttl):
         # general data
         self.stock = stock
@@ -30,22 +35,28 @@ class Signal:
         self.exit_price = None
 
     @classmethod
-    def from_ticker_stat(self, tstat):
+    def from_ticker_stat(self, tstat, invert=False):
         # init reusable vars
         curr_price = tstat.ticker_result.current.adj_close
         curr_time = tstat.ticker_result.current.time
+
+        # determine signal type
+        type = self.Type.BUY if tstat.type == TickerAnalysisStats.UP and not invert else self.Type.SELL
+
         # determine operators
-        target_operator = "add" if tstat.type == TickerAnalysisStats.UP  else "sub"
-        risk_operator = "sub" if tstat.type == TickerAnalysisStats.UP  else "add"
+        target_operator = "add" if type == self.Type.BUY else "sub"
+        risk_operator = "sub"   if type == self.Type.BUY else "add"
+
         # determine ratios
         target_ratio = getattr(operator, target_operator)(1, tstat.percent_change)
         risk_ratio = getattr(operator, risk_operator)(1, tstat.percent_change * self.RISK_DIVIATION)
+
         # generating signal
-        return Signal(tstat.ticker_result.stock, tstat.type,
-                      "[ticker_analyser][{stock} : {price}] might go {dir} by {change:.2f}% in {frame} trading days, after hitting {period}d {function} with {percent:.2f}% chance ({event_cnt} events).".format(
+        return Signal(tstat.ticker_result.stock, type,
+                      "[ticker_analyser][{stock} : {price}][{type}] change: {change:.2f}% in {frame} trading days, after hitting {period}d {function} with {percent:.2f}% chance ({event_cnt} events).".format(
                         stock=tstat.ticker_result.stock.symbol,
                         price=curr_price,
-                        dir=tstat.type,
+                        type=type,
                         change=tstat.percent_change * 100,
                         frame=tstat.result_frame,
                         period=tstat.ticker_result.period,
@@ -58,8 +69,8 @@ class Signal:
     def check_ticker(self, ticker):
         # target
         if self.exit_status == self.Status.UNKNOWN and (
-          (self.type == TickerAnalysisStats.UP and self.target_price <= ticker.high) or
-          (self.type == TickerAnalysisStats.DOWN and self.target_price >= ticker.low)):
+          (self.type == self.Type.BUY and self.target_price <= ticker.high) or
+          (self.type == self.Type.SELL and self.target_price >= ticker.low)):
             self.exit_price = ticker.close
             self.exit_time = ticker.time
             self.exit_status = self.Status.SUCCESS
@@ -67,8 +78,8 @@ class Signal:
 
         # risk
         if self.exit_status == self.Status.UNKNOWN and (
-          (self.type == TickerAnalysisStats.UP and self.risk_price >= ticker.low) or
-          (self.type == TickerAnalysisStats.DOWN and self.risk_price <= ticker.high)):
+          (self.type == self.Type.BUY and self.risk_price >= ticker.low) or
+          (self.type == self.Type.SELL and self.risk_price <= ticker.high)):
             self.exit_price = ticker.close
             self.exit_time = ticker.time
             self.exit_status = self.Status.FAILURE

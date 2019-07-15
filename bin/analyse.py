@@ -16,6 +16,7 @@ parser.add_argument("-f", "--frame", type=int, help="result frame")
 parser.add_argument("-p", "--period", help="analysis period")
 parser.add_argument("-fn", "--function", help="analysis function")
 parser.add_argument("--no-simulate", dest="simulate", default=True, action="store_false", help="simulate created bets")
+parser.add_argument("--inv", dest="invert", default=False, action="store_true", help="invert reaction")
 
 # stock data set
 parser.add_argument("-s", "--stock", help="stock to analize")
@@ -35,7 +36,7 @@ signals = []
 
 with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
     future_to_signals = {executor.submit(APP.analyze_timeframe,
-        stock, args.period, args.function, args.threshold, date, args.interval, args.frame):
+        stock, args.period, args.function, args.threshold, date, args.interval, args.frame, args.invert):
         stock.symbol for stock in stocks}
     for future in concurrent.futures.as_completed(future_to_signals): signals += future.result()
 

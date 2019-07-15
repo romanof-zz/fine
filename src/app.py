@@ -48,18 +48,18 @@ class AppContext:
         else:
             return self.stock_access.stocks
 
-    def analyze_timeframe(self, stock, period, function, threshold, date, interval, frame):
+    def analyze_timeframe(self, stock, period, function, threshold, date, interval, frame, invert):
         signals = []
         tickers = self.load_tickers(stock)
         for d in range(0, interval):
             signal = self.analyze(list(filter(lambda t: t.time <= date - timedelta(days=d), tickers)),
-                period, function, threshold, frame)
+                period, function, threshold, frame, invert)
             if signal: signals.append(signal)
 
         self.logger.info("loaded {} tickers & produced {} signals for {}".format(len(tickers), len(signals), stock.symbol))
         return signals
 
-    def analyze(self, tickers, period, function, threshold, frame):
+    def analyze(self, tickers, period, function, threshold, frame, invert):
         results = TickerAnalyzer(tickers, self.logger, frame).analyze(period, function)
         # flatten stats
         stats = []
@@ -72,7 +72,7 @@ class AppContext:
         # sort by chance, sample size and highest gain accordingly.
         stats = sorted(stats, key = lambda s: (s.chance, s.count, s.percent_change), reverse=True)
 
-        return Signal.from_ticker_stat(stats[0]) if len(stats) else None
+        return Signal.from_ticker_stat(stats[0], invert) if len(stats) else None
 
     def simulate(self, signal):
         return self.simulator.simulate(signal)
