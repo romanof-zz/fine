@@ -10,7 +10,7 @@ from botocore.exceptions import ClientError
 from .models import Ticker, Stock
 
 class StockDataAccess:
-    FILE = "stocks/all.yml"
+    FILE = "stocks/us.stocks.yml"
 
     def __init__(self, logger, storage):
         self.logger = logger
