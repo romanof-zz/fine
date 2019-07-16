@@ -8,38 +8,44 @@ import urllib.request
 from urllib.error import HTTPError
 from botocore.exceptions import ClientError
 from .models import Ticker, Stock
+from .symbols import US_SYMBOLS
 
 class StockDataAccess:
-    FILE = "stocks/us.stocks.yml"
+    DAILY_FILE = "stocks/us.stocks.daily"
+    INTRADAY_FILE = "stocks/us.stocks.intraday"
 
     def __init__(self, logger, storage):
         self.logger = logger
         self.storage = storage
-        stocks = yaml.load(self.storage.get(self.FILE), Loader=yaml.FullLoader)
-        self.stocks = [] if stocks is None else stocks
 
-    def load_updated_today(self):
-        return filter(lambda s: s.daily_updated > datetime.combine(date.today(), datetime.min.time()), self.stocks)
+    def load_all(self):
+        return map(lambda s: Stock(s, None, None, None, None), US_SYMBOLS)
 
     def load_one(self, symbol):
-        return next(filter(lambda s: s.symbol == symbol, self.stocks) or [], None)
+        return Stock(symbol, None, None, None, None)
 
     def load_not_updated(self, type, limit):
-        update_prop = "daily_updated" if type == Ticker.DAILY else "intraday_updated"
-        today_start = datetime.combine(date.today(), datetime.min.time())
-        stocks = list(filter(lambda s: getattr(s, update_prop) < today_start, self.stocks))
+        file = self.DAILY_FILE if type == Ticker.DAILY else self.INTRADAY_FILE
+        sdata = self.storage.get(file)
+        if not sdata:
+            sdata = ",".join(US_SYMBOLS)
+            self.storage.put(file, sdata)
+
+        stocks = sdata.split(",")
+        if type == Ticker.DAILY:
+            self.daily = stocks
+        else:
+            self.intraday = stocks
+
         self.logger.info("type {t} total: {cnt}".format(t=type, cnt=len(stocks)))
         return stocks[:limit]
 
-    def update_now(self, stock, type):
-        loaded_stock = self.load_one(stock.symbol)
-        if type == Ticker.DAILY:
-            loaded_stock.daily_updated = datetime.utcnow()
-        if type == Ticker.INTRADAY:
-            loaded_stock.intraday_updated = datetime.utcnow()
-
-    def store(self):
-        self.storage.put(self.FILE, yaml.dump(self.stocks))
+    def update_now(self, symbol, type):
+        stocks = self.daily if type == Ticker.DAILY else self.intraday
+        stocks.remove(symbol)
+        sdata = ",".join(stocks) if stocks else ''
+        file = self.DAILY_FILE if type == Ticker.DAILY else self.INTRADAY_FILE
+        self.storage.put(file, sdata)
 
 class TickerDataAccess:
     DIR = "tickers"
@@ -60,33 +66,33 @@ class TickerDataAccess:
         self.auth_cookie = auth_cookie
         self.app_key = app_key
 
-    def update_daily(self, stocks):
+    def update_daily(self, symbols):
         cookieProcessor = urllib.request.HTTPCookieProcessor()
         opener = urllib.request.build_opener(cookieProcessor)
         opener.addheaders.append(('Cookie', "B={c}".format(c=self.auth_cookie)))
 
-        for stock in stocks:
+        for symbol in symbols:
             url = "{b}/{s}?period1={p1}&period2={p2}&interval={i}&events={e}&crumb={t}".format(
-                b=self.DAILY_URL_BASE, s=stock.symbol, p1=0, p2=int(time.time()),
+                b=self.DAILY_URL_BASE, s=symbol, p1=0, p2=int(time.time()),
                 i=self.DAILY_INTERVAL, e=self.DAILY_EVENTS, t=self.token)
             try:
-                self.logger.info("daily update {}".format(stock.symbol))
+                self.logger.info("daily update {}".format(symbol))
                 self.logger.debug("update url: {}".format(url))
-                self.storage.put(self.__name_key(stock.symbol, Ticker.DAILY), opener.open(url).read())
-                self.stock_access.update_now(stock, Ticker.DAILY)
-                self.logger.info("finished updating {}".format(stock.symbol))
+                self.storage.put(self.__name_key(symbol, Ticker.DAILY), opener.open(url).read())
+                self.logger.info("finished updating {}".format(symbol))
             except HTTPError:
-                self.logger.error("{} failed to update".format(stock.symbol))
-        self.stock_access.store()
+                self.logger.error("{} failed to update".format(symbol))
+            finally:
+                self.stock_access.update_now(symbol, Ticker.DAILY)
 
-    def update_intraday(self, stocks):
+    def update_intraday(self, symbols):
         error = False
-        for stock in stocks:
+        for symbol in symbols:
             try:
-                self.logger.info("{s} loading data".format(s=stock.symbol))
+                self.logger.info("{s} loading data".format(s=symbol))
 
                 url = "{}?function={}&symbol={}&interval={}&apikey={}&outputsize=compact&datatype=csv".format(
-                    self.INTRADAY_URL_BASE, self.INTRADAY_FUNC, stock.symbol, Ticker.INTRADAY, self.app_key)
+                    self.INTRADAY_URL_BASE, self.INTRADAY_FUNC, symbol, Ticker.INTRADAY, self.app_key)
                 self.logger.debug("stock url: {}".format(url))
                 data = urllib.request.urlopen(url).read().decode("utf-8")
                 reader = csv.reader(io.StringIO(data), delimiter=',')
@@ -99,9 +105,9 @@ class TickerDataAccess:
                         t = datetime.strptime(row[0], Ticker.INTRADAY_TIME_FORMAT)
                         date_key = t.strftime(Ticker.DAILY_TIME_FORMAT)
                         if not date_key in tickers: tickers[date_key] = []
-                        tickers[date_key].append(Ticker(Ticker.INTRADAY, stock.symbol, t, row[1], row[4], row[3], row[2], "0.0", row[5]))
+                        tickers[date_key].append(Ticker(Ticker.INTRADAY, symbol, t, row[1], row[4], row[3], row[2], "0.0", row[5]))
                     except ValueError as e:
-                        self.logger.error("failed to load intraday row for {s} stock with error: {e}".format(s=stock.symbol, e=str(e)))
+                        self.logger.error("failed to load intraday row for {s} stock with error: {e}".format(s=symbol, e=str(e)))
                         error = True
                         break
 
@@ -114,21 +120,19 @@ class TickerDataAccess:
                 for key in tickers:
                     data = "time,open,close,low,high,adj_close,volume\n"
                     data += "\n".join(map(lambda t: t.to_csv(), tickers[key]))
-                    self.storage.put(self.__name_key(stock.symbol, key), data)
+                    self.storage.put(self.__name_key(symbol, key), data)
                     self.logger.info("finished updating {k}".format(k=key))
 
                 if tickers:
-                    self.stock_access.update_now(stock, Ticker.INTRADAY)
-                    self.logger.info("{s} marked updated".format(s=stock.symbol))
+                    self.logger.info("{s} marked updated".format(s=symbol))
 
             except HTTPError as ex:
-                self.logger.error("{s} failed intraday update with error {e}".format(s=stock.symbol, e=str(ex)))
-
-        self.stock_access.store()
+                self.logger.error("{s} failed intraday update with error {e}".format(s=symbol, e=str(ex)))
+            finally:
+                self.stock_access.update_now(symbol, Ticker.INTRADAY)
 
     def load_daily(self, stock):
         return self.__load(stock, Ticker.DAILY, Ticker.DAILY, Ticker.DAILY_TIME_FORMAT)
-
 
     def load_intraday(self, stock, date):
         tickers = self.__load(stock, Ticker.INTRADAY, date.strftime(Ticker.DAILY_TIME_FORMAT), Ticker.INTRADAY_TIME_FORMAT)

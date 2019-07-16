@@ -9,29 +9,21 @@ from app import AppContext
 from util import valid_date
 
 parser = argparse.ArgumentParser()
-
-# analysis params
 parser.add_argument("-t", "--threshold", type=float, default=0.6, help="threshold to use for bets")
 parser.add_argument("-f", "--frame", type=int, help="result frame")
 parser.add_argument("-p", "--period", help="analysis period")
 parser.add_argument("-fn", "--function", help="analysis function")
 parser.add_argument("--no-simulate", dest="simulate", default=True, action="store_false", help="simulate created bets")
 parser.add_argument("--inv", dest="invert", default=False, action="store_true", help="invert reaction")
-
-# stock data set
 parser.add_argument("-s", "--stock", help="stock to analize")
-parser.add_argument("--today", default=False, action="store_true", help="consider only stocks updated today")
-
-# timeframe limits
 parser.add_argument("-d", "--date", type=valid_date, help="run analysis with a given date as a start date")
 parser.add_argument("-i", "--interval", type=int, default=1, help="run analysis for a given interval from a date")
-
 args = parser.parse_args()
 
 APP = AppContext()
 
 date = args.date if args.date is not None else datetime.today()
-stocks = APP.load_stocks(args.stock, args.today)
+stocks = APP.load_stocks(args.stock)
 signals = []
 
 with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:

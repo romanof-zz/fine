@@ -40,13 +40,8 @@ class AppContext:
     def load_tickers(self, stock):
         return self.ticker_access.load_daily(stock)
 
-    def load_stocks(self, stock, updated_only):
-        if stock is not None:
-            return [self.stock_access.load_one(stock)]
-        elif updated_only:
-            return self.stock_access.load_updated_today()
-        else:
-            return self.stock_access.stocks
+    def load_stocks(self, symbol):
+        return self.stock_access.load_all() if symbol is None else self.stock_access.load_one(symbol)
 
     def analyze_timeframe(self, stock, period, function, threshold, date, interval, frame, invert):
         signals = []
@@ -77,31 +72,36 @@ class AppContext:
     def simulate(self, signal):
         return self.simulator.simulate(signal)
 
-    def update(self, stock, type, limit):
-        try:
-            self.logger.info("update {t} type: requested {l} items".format(t=type, l=limit))
-            stocks = [self.stock_access.load_one(stock)] if stock is not None else self.stock_access.load_not_updated(type, limit)
-            if not len(stocks): return False
-            if type == Ticker.INTRADAY:
-                self.ticker_access.update_intraday(stocks)
-            if type == Ticker.DAILY:
-                self.ticker_access.update_daily(stocks)
-            return True
-        except KeyboardInterrupt:
-            self.logger.error("properly finalizing interput")
-            self.stock_access.store()
+    def update(self, symbol, type, limit):
+        self.logger.info("update {t} type: requested {l} items".format(t=type, l=limit))
+        symbols = self.stock_access.load_not_updated(type, limit) if symbol is None else [symbol]
+        if not len(symbols): return False
+        if type == Ticker.INTRADAY:
+            self.ticker_access.update_intraday(symbols)
+        if type == Ticker.DAILY:
+            self.ticker_access.update_daily(symbols)
+        return True
 
     def twitter_update(self):
         self.twitter_access.update_all()
 
 def lambda_ticker_daily_update(event, context):
-    AppContext().update(None, Ticker.DAILY, 150)
+    app = AppContext()
+    app.logger.info("started daily update")
+    app.update(None, Ticker.DAILY, 120)
+    app.logger.info("finished daily update")
     return {'resultCode': 200}
 
 def lambda_ticker_intraday_update(event, context):
-    AppContext().update(None, Ticker.INTRADAY, 100)
+    app = AppContext()
+    app.logger.info("started intraday update")
+    app.update(None, Ticker.INTRADAY, 5)
+    app.logger.info("finished daily update")
     return {'resultCode': 200}
 
 def lambda_twitter_update(event, context):
-    AppContext().twitter_update()
+    app = AppContext()
+    app.logger.info("started twitter update")
+    app.twitter_update()
+    app.logger.info("finished twitter update")
     return {'resultCode': 200}
