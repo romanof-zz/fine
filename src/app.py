@@ -88,7 +88,7 @@ class AppContext:
 def lambda_ticker_daily_update(event, context):
     app = AppContext()
     app.logger.info("started daily update")
-    app.update(None, Ticker.DAILY, 120)
+    app.update(None, Ticker.DAILY, 300)
     app.logger.info("finished daily update")
     return {'resultCode': 200}
 
