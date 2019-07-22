@@ -40,20 +40,20 @@ class TickerAnalyzer:
         results = []
         periods = self.PERIODS if period is None else [period]
         functions = self.FUNCTIONS if function is None else [function]
-        for stock in set(map(lambda t: t.stock, self.tickers)):
-            tickers = sorted(filter(lambda t: t.stock == stock, self.tickers), key=lambda t: t.time, reverse=True)
+        for symbol in set(map(lambda t: t.symbol, self.tickers)):
+            tickers = sorted(filter(lambda t: t.symbol == symbol, self.tickers), key=lambda t: t.time, reverse=True)
             rtickers = list(reversed(tickers))
-            results += [self.__analyze(tickers, rtickers, stock, p, f) for f in functions for p in periods]
+            results += [self.__analyze(tickers, rtickers, symbol, p, f) for f in functions for p in periods]
         return list(filter(lambda r: not r.empty(), results))
 
-    def __analyze(self, tickers, reverse, stock, period, function):
-        result = TickerAnalysisResult(stock, self.frame, tickers[0], reverse, period, function)
+    def __analyze(self, tickers, reverse, symbol, period, function):
+        result = TickerAnalysisResult(symbol, self.frame, tickers[0], reverse, period, function)
 
         self.logger.debug("== analyze input: tickers={t}, period={p}, function={f}  ==".format(t=len(tickers), p=period, f=function))
         for idx, ticker in enumerate(tickers):
             extreme = getattr(self, function)(tickers, idx, int(period))
             if not extreme and idx == 0:
-                self.logger.debug("== {s} {p} {f} - no hit on {d} ==".format(s=stock.symbol, p=period, f=function, d=ticker.time))
+                self.logger.debug("== {s} {p} {f} - no hit on {d} ==".format(s=symbol, p=period, f=function, d=ticker.time))
                 break
             if extreme:
                 self.logger.debug("== added ticker with index={i} ==".format(i=idx))

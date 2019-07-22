@@ -91,7 +91,7 @@ class TickerDataAccess:
             try:
                 self.logger.info("{s} loading data".format(s=symbol))
 
-                url = "{}?function={}&symbol={}&interval={}&apikey={}&outputsize=compact&datatype=csv".format(
+                url = "{}?function={}&symbol={}&interval={}&apikey={}&outputsize=full&datatype=csv".format(
                     self.INTRADAY_URL_BASE, self.INTRADAY_FUNC, symbol, Ticker.INTRADAY, self.app_key)
                 self.logger.debug("stock url: {}".format(url))
                 data = urllib.request.urlopen(url).read().decode("utf-8")
@@ -118,6 +118,13 @@ class TickerDataAccess:
                     continue
 
                 for key in tickers:
+                    try:
+                        old_data = self.__load(symbol, Ticker.INTRADAY, key, Ticker.INTRADAY_TIME_FORMAT)
+                    except ClientError as e:
+                        old_data = []
+
+                    if len(old_data) > len(tickers[key]): continue
+
                     data = "time,open,close,low,high,adj_close,volume\n"
                     data += "\n".join(map(lambda t: t.to_csv(), tickers[key]))
                     self.storage.put(self.__name_key(symbol, key), data)
@@ -131,23 +138,23 @@ class TickerDataAccess:
             finally:
                 self.stock_access.update_now(symbol, Ticker.INTRADAY)
 
-    def load_daily(self, stock):
-        return self.__load(stock, Ticker.DAILY, Ticker.DAILY, Ticker.DAILY_TIME_FORMAT)
+    def load_daily(self, symbol):
+        return self.__load(symbol, Ticker.DAILY, Ticker.DAILY, Ticker.DAILY_TIME_FORMAT)
 
-    def load_intraday(self, stock, date):
-        tickers = self.__load(stock, Ticker.INTRADAY, date.strftime(Ticker.DAILY_TIME_FORMAT), Ticker.INTRADAY_TIME_FORMAT)
+    def load_intraday(self, symbol, date):
+        tickers = self.__load(symbol, Ticker.INTRADAY, date.strftime(Ticker.DAILY_TIME_FORMAT), Ticker.INTRADAY_TIME_FORMAT)
         # intraday tickers are recorded in reverse order
         return list(reversed(tickers))
 
-    def __load(self, stock, type, key, time_format):
+    def __load(self, symbol, type, key, time_format):
         tickers = []
-        filename = self.__name_key(stock.symbol, key)
+        filename = self.__name_key(symbol, key)
         reader = csv.reader(io.StringIO(self.storage.get(filename)), delimiter=',')
         next(reader, None)  # skip the headers
         for row in reader:
             try:
                 time = datetime.strptime(row[0], time_format)
-                tickers.append(Ticker(type, stock, time, row[1], row[2], row[3], row[4], row[5], row[6]))
+                tickers.append(Ticker(type, symbol, time, row[1], row[2], row[3], row[4], row[5], row[6]))
             except ValueError:
                 continue
         return tickers

@@ -16,9 +16,9 @@ class Signal:
         SELL = 'sell'
         HOLD = 'hold'
 
-    def __init__(self, stock, type, info, event_time, event_price, target_price, risk_price, ttl):
+    def __init__(self, symbol, type, info, event_time, event_price, target_price, risk_price, ttl):
         # general data
-        self.stock = stock
+        self.symbol = symbol
         self.type = type
         self.info = info
         self.event_time = event_time
@@ -52,9 +52,9 @@ class Signal:
         risk_ratio = getattr(operator, risk_operator)(1, tstat.percent_change * self.RISK_DIVIATION)
 
         # generating signal
-        return Signal(tstat.ticker_result.stock, type,
+        return Signal(tstat.ticker_result.symbol, type,
                       "[ticker_analyser][{stock} : {price}][{type}] change: {change:.2f}% in {frame} trading days, after hitting {period}d {function} with {percent:.2f}% chance ({event_cnt} events).".format(
-                        stock=tstat.ticker_result.stock.symbol,
+                        stock=tstat.ticker_result.symbol,
                         price=curr_price,
                         type=type,
                         change=tstat.percent_change * 100,

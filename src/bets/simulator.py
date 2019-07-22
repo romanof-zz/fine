@@ -13,7 +13,7 @@ class Simulator:
             try:
                 # start simulation from next morning after event
                 time = signal.event_time + timedelta(days=days)
-                tickers = self.ticker_access.load_intraday(signal.stock, time)
+                tickers = self.ticker_access.load_intraday(signal.symbol, time)
                 self.logger.info("simulating {s} on {t} with {c} tickers".format(
                     s=signal.stock.symbol,
                     t=time,
@@ -33,7 +33,7 @@ class Simulator:
                 trading_days+=1
 
             except ClientError:
-                self.logger.error("failed to load {s} on {t}".format(s=signal.stock.symbol, t=time))
+                self.logger.error("failed to load {s} on {t}".format(s=signal.symbol, t=time))
                 if time > datetime.now(): return False
 
             finally:

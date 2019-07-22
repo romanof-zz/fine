@@ -13,9 +13,9 @@ class Ticker:
     DAILY_TIME_FORMAT = '%Y-%m-%d'
     INTRADAY_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
-    def __init__(self, type, stock, time, open, close, low, high, adj_close, volume):
+    def __init__(self, type, symbol, time, open, close, low, high, adj_close, volume):
         self.type = type
-        self.stock = stock
+        self.symbol = symbol
         self.time = time
         self.open = float(open)
         self.close = float(close)
@@ -26,7 +26,7 @@ class Ticker:
 
     def __str__(self):
         return "[{s}@{t}] open: {o} close: {c} high: {h} low: {l}, vol: {v}".format(
-            s=self.stock,
+            s=self.symbol,
             t=self.time,
             o=self.open,
             c=self.close,
@@ -65,8 +65,8 @@ class TickerAnalysisStats:
 class TickerAnalysisResult:
     RESULT_FRAMES = [5, 10, 20]
 
-    def __init__(self, stock, frame, current, tickers, period, function):
-        self.stock = stock
+    def __init__(self, symbol, frame, current, tickers, period, function):
+        self.symbol = symbol
         self.frames = [frame] if frame else self.RESULT_FRAMES
         self.current = current
         self.period = period
@@ -108,7 +108,7 @@ class TickerAnalysisResult:
         self.calculate_stats()
 
         ret = "\n{s} on {d} - {p}d {f} ({cnt} events) ".format(
-            s=self.stock.symbol,
+            s=self.symbol,
             d=self.current.time,
             p=self.period,
             f=self.function,

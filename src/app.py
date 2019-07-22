@@ -38,7 +38,7 @@ class AppContext:
         self.simulator = Simulator(self.logger, self.ticker_access)
 
     def load_tickers(self, stock):
-        return self.ticker_access.load_daily(stock)
+        return self.ticker_access.load_daily(stock.symbol)
 
     def load_stocks(self, symbol):
         return self.stock_access.load_all() if symbol is None else self.stock_access.load_one(symbol)
