@@ -2,13 +2,13 @@ from datetime import datetime
 import yaml
 import twitter
 from botocore.exceptions import ClientError
+from util import DATE_FORMAT
 
 from .models import Tweet
 
 class TwitterDataAccess:
     DIR = "tweets"
     LAST_POINTER = "$LAST"
-    DATE_FORMAT = '%Y-%m-%d'
     TIME_FORMAT = '%a %b %d %H:%M:%S %z %Y'
 
     def __init__(self, storage, logger, consumer_key, consumer_secret, access_token_key, access_token_secret):
@@ -34,7 +34,7 @@ class TwitterDataAccess:
 
         tweets_date_map = {}
         for tweet in tweets:
-            date_key = tweet.time.strftime(self.DATE_FORMAT)
+            date_key = tweet.time.strftime(DATE_FORMAT)
             if not date_key in tweets_date_map: tweets_date_map[date_key] = self.__load_date(tweet.source, date_key)
             tweets_date_map[date_key].append(tweet)
 

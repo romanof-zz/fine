@@ -37,11 +37,11 @@ class Signal:
     @classmethod
     def from_ticker_stat(self, tstat, invert=False):
         # init reusable vars
-        curr_price = tstat.ticker_result.current.adj_close
+        curr_price = tstat.ticker_result.current.close
         curr_time = tstat.ticker_result.current.time
 
         # determine signal type
-        type = self.Type.BUY if tstat.type == TickerAnalysisStats.UP and not invert else self.Type.SELL
+        type = self.Type.BUY if tstat.type == TickerAnalysisStats.Type.UP and not invert else self.Type.SELL
 
         # determine operators
         target_operator = "add" if type == self.Type.BUY else "sub"

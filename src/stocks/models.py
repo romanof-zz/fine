@@ -7,13 +7,15 @@ class Stock:
         self.source = source
 
 class Ticker:
-    DAILY = "daily"
-    INTRADAY = "5min"
+    class Type:
+        ONE_DAY  = '1d'
+        ONE_HOUR = '1h'
+        FIVE_MIN = '5m'
+        ONE_MIN  = '1m'
 
-    DAILY_TIME_FORMAT = '%Y-%m-%d'
-    INTRADAY_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+    TYPES = [Type.ONE_DAY, Type.ONE_HOUR, Type.FIVE_MIN, Type.ONE_MIN]
 
-    def __init__(self, type, symbol, time, open, close, low, high, adj_close, volume):
+    def __init__(self, type, symbol, time, open, close, low, high, volume):
         self.type = type
         self.symbol = symbol
         self.time = time
@@ -21,7 +23,6 @@ class Ticker:
         self.close = float(close)
         self.low = float(low)
         self.high = float(high)
-        self.adj_close = float(adj_close)
         self.volume = int(volume)
 
     def __str__(self):
@@ -34,14 +35,12 @@ class Ticker:
             l=self.low,
             v=self.volume)
 
-    def to_csv(self):
-        return "{},{:.4f},{:.4f},{:.4f},{:.4f},{:.4f},{}".format(self.time.strftime(self.INTRADAY_TIME_FORMAT),
-           self.open, self.close, self.low, self.high, self.adj_close, self.volume)
-
 class TickerAnalysisStats:
-    UP = "up"
-    DOWN = "down"
-    TYPES = [UP, DOWN]
+    class Type:
+        UP = "up"
+        DOWN = "down"
+
+    TYPES = [Type.UP, Type.DOWN]
 
     def __init__(self, ticker_result, result_frame, type):
         self.ticker_result = ticker_result
@@ -77,8 +76,8 @@ class TickerAnalysisResult:
         self.stats = {}
         for i in self.frames:
             self.stats[i] = {}
-            self.stats[i][TickerAnalysisStats.UP] = TickerAnalysisStats(self, i, TickerAnalysisStats.UP)
-            self.stats[i][TickerAnalysisStats.DOWN] = TickerAnalysisStats(self, i, TickerAnalysisStats.DOWN)
+            self.stats[i][TickerAnalysisStats.Type.UP] = TickerAnalysisStats(self, i, TickerAnalysisStats.Type.UP)
+            self.stats[i][TickerAnalysisStats.Type.DOWN] = TickerAnalysisStats(self, i, TickerAnalysisStats.Type.DOWN)
 
     def add_ticker(self, offset):
         self.ticker_results[self.count] = []
@@ -98,8 +97,8 @@ class TickerAnalysisResult:
                 tset = self.ticker_results[k]
                 if len(tset) <= frame: continue
 
-                percent_change = abs(tset[frame].adj_close - tset[0].adj_close) / tset[0].adj_close
-                type = TickerAnalysisStats.UP if tset[0].adj_close < tset[frame].adj_close else TickerAnalysisStats.DOWN
+                percent_change = abs(tset[frame].close - tset[0].close) / tset[0].close
+                type = TickerAnalysisStats.Type.UP if tset[0].close < tset[frame].close else TickerAnalysisStats.Type.DOWN
                 self.stats[frame][type].record_percent_change(percent_change)
 
         [self.stats[frame][type].update_counts() for type in TickerAnalysisStats.TYPES for frame in self.frames]
@@ -118,8 +117,8 @@ class TickerAnalysisResult:
         for offset in self.frames:
             ret += "\n[{o}d]: ".format(o=offset)
             ret += "max: {max:.2f}%; min: -{min:.2f}%;".format(
-                max=self.stats[offset][TickerAnalysisStats.UP].extreme * 100,
-                min=self.stats[offset][TickerAnalysisStats.DOWN].extreme * 100)
+                max=self.stats[offset][TickerAnalysisStats.Type.UP].extreme * 100,
+                min=self.stats[offset][TickerAnalysisStats.Type.DOWN].extreme * 100)
 
             for skey in TickerAnalysisStats.TYPES:
                 ret += " {key} avg: {avg:.2f}% with ({e} - {ep:.2f}%) events;".format(

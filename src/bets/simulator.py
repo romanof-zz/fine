@@ -1,6 +1,7 @@
 from datetime import timedelta, datetime
 from botocore.exceptions import ClientError
 from .models import Signal
+from util import DATE_FORMAT
 
 class Simulator:
     def __init__(self, logger, ticker_access):
@@ -13,7 +14,7 @@ class Simulator:
             try:
                 # start simulation from next morning after event
                 time = signal.event_time + timedelta(days=days)
-                tickers = self.ticker_access.load_intraday(signal.symbol, time)
+                tickers = self.ticker_access.load(signal.symbol, Ticker.Type.FIVE_MIN, time.strftime(DATE_FORMAT))
                 self.logger.info("simulating {s} on {t} with {c} tickers".format(
                     s=signal.stock.symbol,
                     t=time,

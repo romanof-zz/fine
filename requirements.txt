@@ -1,3 +1,5 @@
 pyyaml
 boto3
 python-twitter
+yfinance
+lxml
