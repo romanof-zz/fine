@@ -8,10 +8,8 @@ app = AppContext()
 
 def check_not_exists(symbol):
     try:
-        type = '5m'
-        date = '2019-07-22'
-        content = app.s3.get(f"tickers/{symbol}/{type}/{date}.csv")
-        return None if date in content else symbol
+        content = app.s3.get(f"tickers/{symbol}/5m/2019-07-24.csv")
+        return None if '.' in content else symbol
     except ClientError:
         return symbol
 
@@ -25,5 +23,5 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         res = future.result()
         if res: missing.append(res)
 
-print(missing)
+print(",".join(missing))
 print(len(missing))
