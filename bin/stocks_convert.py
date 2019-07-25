@@ -12,7 +12,7 @@ for source in names:
         next(reader, None)  # skip the headers
         for row in reader:
             smbl = row[0].strip()
-            if smbl.find('^') != -1 or smbl.find('.') != -1:
+            if smbl.find('^') != -1 or smbl.find('.') != -1 or smbl.find('~') != -1 or smbl.find('$') != -1:
                 continue
             if smbl not in stocks.keys():
                 stocks[smbl] = Stock(smbl, row[1], row[5], row[6], source)
