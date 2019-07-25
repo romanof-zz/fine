@@ -24,12 +24,35 @@ class TickerDataAccess:
         self.symbols = {}
 
     def update(self, symbols, type, period):
-        df = self.__yfin_download(symbols, type, period)
-
-        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-            [executor.submit(self.__write_single_symbol, symbol, type, period, df[symbol] if len(symbols) > 1 else df) for symbol in symbols]
+        if type == Ticker.Type.OPTIONS:
+            self.__update_options(symbols)
+        else:
+            self.__update_symbols(symbols, type, period)
 
         self.__reduce_updated(symbols, type)
+
+    def __update_options(self, symbols):
+        data = yf.Tickers(" ".join(symbols))
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            [executor.submit(self.__update_single_option, symbol, getattr(data, symbol)) for symbol in symbols]
+
+    def __update_single_option(self, symbol, obj):
+        # update dividends
+        self.storage.put(f"{self.DIR}/{symbol}/div.csv", obj.dividends.to_csv(header=True))
+        self.logger.info(f"updated dividends for {symbol}")
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            [executor.submit(self.__write_single_option_spread, symbol, expiration, obj.option_chain(expiration)) for expiration in obj.options]
+
+    def __write_single_option_spread(self, symbol, exp, data):
+        self.storage.put(f"{self.DIR}/{symbol}/opts/calls/{datetime.now().strftime(DATE_FORMAT)}_{exp}.csv", data.calls.to_csv())
+        self.storage.put(f"{self.DIR}/{symbol}/opts/puts/{datetime.now().strftime(DATE_FORMAT)}_{exp}.csv", data.puts.to_csv())
+        self.logger.info(f"updated options for {symbol}")
+
+    def __update_symbols(self, symbols, type, period):
+        df = self.__yfin_download(symbols, type, period)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            [executor.submit(self.__write_single_symbol, symbol, type, period, df[symbol] if len(symbols) > 1 else df) for symbol in symbols]
 
     def __write_single_symbol(self, symbol, type, period, data):
         # process 1d data as single files.

@@ -12,8 +12,9 @@ class Ticker:
         ONE_HOUR = '1h'
         FIVE_MIN = '5m'
         ONE_MIN  = '1m'
+        OPTIONS = "opts"
 
-    TYPES = [Type.ONE_DAY, Type.ONE_HOUR, Type.FIVE_MIN, Type.ONE_MIN]
+    TYPES = [Type.ONE_DAY, Type.ONE_HOUR, Type.FIVE_MIN, Type.ONE_MIN, Type.OPTIONS]
 
     def __init__(self, type, symbol, time, open, close, low, high, volume):
         self.type = type
