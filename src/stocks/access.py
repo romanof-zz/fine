@@ -79,7 +79,7 @@ class TickerDataAccess:
             error_count = 0
             if data.empty: return False # remove non-loaded symbols
             with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-                futures = [executor.submit(self.__write_single_date_key, symbol, type, days, data) for days in range(0, period)]
+                futures = [executor.submit(self.__write_single_date_key, symbol, type, days, data) for days in range(1, period+1)]
                 for future in concurrent.futures.as_completed(futures):
                     if not future.result(): error_count+=1
             # consider 20% missing data valid
@@ -175,6 +175,9 @@ class TickerDataAccess:
             # valid periods: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
             # (optional, default is '1mo')
             period = period if period == "max" else f"{period}d",
+
+            # use start only to limit max exepctions 'over 100y of data'
+            start = '1930-01-01' if period == "max" else None,
 
             # fetch data by interval (including intraday if period < 60 days)
             # valid intervals: 1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,3mo

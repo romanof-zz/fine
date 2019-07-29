@@ -86,6 +86,8 @@ def lambda_ticker_update(event, context):
     app.update(None, Ticker.Type.FIVE_MIN, 1, 100)
     app.logger.info("started 1m ticker update")
     app.update(None, Ticker.Type.ONE_MIN, 1, 100)
+    app.logger.info("started options update")
+    app.update(None, Ticker.Type.OPTIONS, 1, 100)
     app.logger.info("finished all ticker updates")
     return {'resultCode': 200}
 

@@ -12,7 +12,7 @@ cp bin/numpy-1.16.4-cp37-cp37m-manylinux1_x86_64.whl lambda &&
 cp bin/pandas-0.25.0-cp37-cp37m-manylinux1_x86_64.whl lambda &&
 
 echo "== install dependencies ==" &&
-sudo -H pip3 install -Ur requirements.txt -t lambda &&
+pip install -Ur requirements.txt -t lambda &&
 
 cd lambda &&
 # @link https://medium.com/@korniichuk/lambda-with-pandas-fd81aa2ff25e

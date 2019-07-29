@@ -1,10 +1,11 @@
-# Byte-compiled / optimized / DLL files
+__pycache__
 .DS_Store
-__pycache__/
+.cache
+.env
+.logs
 *.py[cod]
 *$py.class
 *.yml
 *.csv
 *.zip
 *.whl
-.cache/
