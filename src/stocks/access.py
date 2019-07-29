@@ -19,6 +19,8 @@ class StockDataAccess:
 class TickerDataAccess:
     DIR = "tickers"
 
+    VALID_THRESHOLD = 0.3
+
     def __init__(self, storage, logger):
         self.storage = storage
         self.logger = logger
@@ -57,18 +59,18 @@ class TickerDataAccess:
         self.logger.info(f"updated options for {symbol}")
 
     def __update_symbols(self, symbols, type, period):
-        df = self.__yfin_download(symbols, type, period)
-        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-            futures = {executor.submit(self.__write_single_symbol, symbol, type, period, df[symbol] if len(symbols) > 1 else df): symbol for symbol in symbols}
-            for future in concurrent.futures.as_completed(futures):
-                symbol = futures[future]
-                if not future.result(): symbols.remove(symbol)
+        for symbol in symbols:
+            if not self.__update_symbol(symbol, type, period):
+                symbols.remove(symbol)
         return symbols
 
-    def __write_single_symbol(self, symbol, type, period, data):
+    def __update_symbol(self, symbol, type, period):
+        # aparently yfinance download() tends to lose data for larger dataframes.
+        # that's why we refrained from using multiple symbols or parallelism for downloads.
+        data = self.__yfin_download(symbol, type, period)
         # process 1d data as single files.
         if type == Ticker.Type.ONE_DAY:
-            if self.__valid_data(data):
+            if self.__is_valid(symbol, data):
                 self.storage.put(self.__ticker_filename(symbol, type), data.to_csv())
                 self.logger.info(f"updated {symbol} for {type}")
                 return True
@@ -85,23 +87,47 @@ class TickerDataAccess:
             return error_count / period < 0.2
 
     def __write_single_date_key(self, symbol, type, days, data):
-        key = (datetime.now() - timedelta(days=days)).strftime(DATE_FORMAT)
-        segment = data.loc[key:key]
+        time = datetime.now() - timedelta(days=days)
+        key = time.strftime(DATE_FORMAT)
+        try:
+            segment = data.loc[key:key]
+        # sometimes dataframe index would be pd.timestamp instead of string.
+        except TypeError:
+            self.logger.info(f"index was date for {symbol}:{type} on date {key}")
+            self.logger.info(data.index)
+            segment = data.loc[time:time]
+            if segment.empty: return False # handle failed recovery
+
         if segment.empty: return True # skip weekends
-        if self.__valid_data(segment):
+        if self.__is_valid(symbol, segment):
             self.storage.put(self.__ticker_filename(symbol, type, key), segment.to_csv())
             self.logger.info(f"updated {symbol} for {type} and date {key}")
             return True
-        else: return False
+        else:
+            # debug only.
+            # with open(f".logs/{symbol}.{type}.{key}.log", "w+") as file:
+            #     file.write(segment.to_csv())
+            return False
 
-    def __valid_data(self, df):
-        if not len(df): return False
-        if (not df.iloc[0].Low) or pd.isna(df.iloc[0].Low): return False
-        if (not df.iloc[0].High) or pd.isna(df.iloc[0].High): return False
-        if (not df.iloc[0].Open) or pd.isna(df.iloc[0].Open): return False
-        if (not df.iloc[0].Close) or pd.isna(df.iloc[0].Close): return False
-        if (not df.iloc[0].Volume) or pd.isna(df.iloc[0].Volume): return False
-        return True
+    def __is_valid(self, symbol, dataframe):
+        err_rate = self.__validate(dataframe)
+        self.logger.info(f"{symbol} validation: err_rate = {err_rate} over records = {len(dataframe)}")
+        return (1 - err_rate) > self.VALID_THRESHOLD
+
+    def __validate(self, df):
+        if not len(df): return 1
+        error_cnt = 0
+        for i in range(0, len(df)):
+            try:
+                if (pd.isna(float(df.iloc[i].Low))
+                 or pd.isna(float(df.iloc[i].High))
+                 or pd.isna(float(df.iloc[i].Open))
+                 or pd.isna(float(df.iloc[i].Close))
+                 or pd.isna(int(df.iloc[i].Volume))):
+                    error_cnt+=1
+            except ValueError:
+                error_cnt+=1
+        return error_cnt / len(df)
 
     def load(self, symbol, type, date=None):
         filename = self.__ticker_filename(self, symbol, type, date)
@@ -140,10 +166,10 @@ class TickerDataAccess:
         else:
             return f"{self.DIR}/{symbol}/{type}/{date}.csv"
 
-    def __yfin_download(self, symbols, type, period):
+    def __yfin_download(self, symbol, type, period):
         return yf.download(
             # tickers list or string as well
-            tickers = " ".join(symbols),
+            tickers = symbol,
 
             # use "period" instead of start/end
             # valid periods: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
