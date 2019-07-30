@@ -1,5 +1,8 @@
 pyyaml
 boto3
 python-twitter
+numpy==1.16.4
+pandas==0.25.0
+nltk
 yfinance
 lxml

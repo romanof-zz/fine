@@ -19,7 +19,7 @@ class TwitterDataAccess:
 
     def update_all(self):
         users = self.api.GetFriends()
-        self.logger.info("updating {} users.".format(len(users)))
+        self.logger.info(f"updating {len(users)} users.")
         [self.update(user) for user in users]
 
     def update(self, user):
@@ -45,20 +45,28 @@ class TwitterDataAccess:
 
         if len(tweets): self.storage.put(self.__key(user.screen_name, self.LAST_POINTER), tweets[-1].id)
 
-    def __load_date(self, dir, date_key):
-        data = self.__load(dir, date_key)
+    def load(self, users=None, date_key=None):
+        if users is None: users = map(lambda u: u.screen_name, self.api.GetFriends())
+        if date_key is None: date_key = datetime.now().strftime(DATE_FORMAT)
+        tweets = []
+        for user in users:
+            tweets += self.__load_date(user, date_key)
+        return tweets
+
+    def __load_date(self, username, date_key):
+        data = self.__load(username, date_key)
         return yaml.load(data, Loader=yaml.FullLoader) if data else []
 
     def __last_updated(self, dir):
         return self.__load(dir, self.LAST_POINTER)
 
-    def __load(self, dir, filename):
-        key = self.__key(dir, filename)
+    def __load(self, username, filename):
+        key = self.__key(username, filename)
         try:
             return self.storage.get(key)
         except ClientError:
-            self.logger.error("failed to load '{}'".format(key))
+            self.logger.error(f"failed to load '{key}'")
             return None
 
-    def __key(self, dir, name):
-        return "{dir}/{name}/{file}".format(dir=self.DIR, name=dir, file=name)
+    def __key(self, username, date):
+        return f"{self.DIR}/{username}/{date}"
