@@ -59,10 +59,11 @@ class TickerDataAccess:
         self.logger.info(f"updated options for {symbol}")
 
     def __update_symbols(self, symbols, type, period):
+        updated = []
         for symbol in symbols:
-            if not self.__update_symbol(symbol, type, period):
-                symbols.remove(symbol)
-        return symbols
+            if self.__update_symbol(symbol, type, period):
+                updated.append(symbol)
+        return updated
 
     def __update_symbol(self, symbol, type, period):
         # aparently yfinance download() tends to lose data for larger dataframes.
@@ -152,8 +153,10 @@ class TickerDataAccess:
 
     def __reduce_updated(self, symbols, type, offset):
         if not type in self.symbols: return
+        original = len(self.symbols[type])
         self.symbols[type] = [s for s in self.symbols[type] if s not in symbols]
         for i in range(0, offset): self.symbols[type].append(self.symbols[type].pop(0))
+        self.logger.info(f"before: {original}, removed: {len(symbols)}, moved back: {offset}, after: {len(self.symbols[type])}")
         sdata = ",".join(self.symbols[type]) if self.symbols[type] else ''
         self.storage.put(self.__update_filename(type), sdata)
 
