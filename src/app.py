@@ -12,6 +12,7 @@ from bets.models import Signal
 from bets.simulator import Simulator
 
 from sentiment.access import TwitterDataAccess
+from sentiment.analyzers import SentimentAnalyzer
 
 class AppContext:
     APP_BUCKET = "fine.data"
@@ -87,6 +88,9 @@ class AppContext:
 
     def twitter_update(self):
         self.__twitter_access().update_all()
+
+    def extterms(self, date):
+        return SentimentAnalyzer(self.__twitter_access()).extract_terms(date)
 
 def lambda_ticker_update(event, context):
     app = AppContext()
