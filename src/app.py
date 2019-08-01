@@ -92,22 +92,34 @@ class AppContext:
     def extterms(self, date):
         return SentimentAnalyzer(self.__twitter_access()).extract_terms(date)
 
-def lambda_ticker_update(event, context):
+def lambda_ticker_1h_update(event, context):
     app = AppContext()
-    # termporal first
-    for i in (0, 10):
-        app.logger.info(f"iter #{i}: 1h")
-        app.update(None, Ticker.Type.ONE_HOUR, 1, 5)
-        app.logger.info(f"iter #{i}: 5m")
-        app.update(None, Ticker.Type.FIVE_MIN, 1, 5)
-        app.logger.info(f"iter #{i}: 1m")
-        app.update(None, Ticker.Type.ONE_MIN, 1, 5)
-        app.logger.info(f"iter #{i}: opts")
-        app.update(None, Ticker.Type.OPTIONS, 1, 5)
-    # stale after
-    for i in (0, 10):
-        app.logger.info(f"iter #{i}: 1d")
-        app.update(None, Ticker.Type.ONE_DAY, 'max', 5)
+    for i in range(0, 10):
+        app.update(None, Ticker.Type.ONE_HOUR, 1, 10)
+    return {'resultCode': 200}
+
+def lambda_ticker_5m_update(event, context):
+    app = AppContext()
+    for i in range(0, 10):
+        app.update(None, Ticker.Type.FIVE_MIN, 1, 10)
+    return {'resultCode': 200}
+
+def lambda_ticker_1m_update(event, context):
+    app = AppContext()
+    for i in range(0, 10):
+        app.update(None, Ticker.Type.ONE_MIN, 1, 10)
+    return {'resultCode': 200}
+
+def lambda_ticker_opts_update(event, context):
+    app = AppContext()
+    for i in range(0, 10):
+        app.update(None, Ticker.Type.OPTIONS, 1, 10)
+    return {'resultCode': 200}
+
+def lambda_ticker_1d_update(event, context):
+    app = AppContext()
+    for i in range(0, 10):
+        app.update(None, Ticker.Type.ONE_DAY, 'max', 10)
     return {'resultCode': 200}
 
 def lambda_twitter_update(event, context):
