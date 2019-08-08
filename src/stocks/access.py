@@ -60,15 +60,16 @@ class TickerDataAccess:
 
     def __update_symbols(self, symbols, type, period):
         updated = []
-        for symbol in symbols:
-            if self.__update_symbol(symbol, type, period):
-                updated.append(symbol)
+        data = self.__yfin_download(symbols, type, period)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            futures = {executor.submit(self.__update_symbol, symbol, type, period, data if len(symbols) == 1 else data[symbol]) : symbol for symbol in symbols}
+            for future in concurrent.futures.as_completed(futures):
+                if future.result(): updated.append(futures[future])
         return updated
 
-    def __update_symbol(self, symbol, type, period):
-        # aparently yfinance download() tends to lose data for larger dataframes.
-        # that's why we refrained from using multiple symbols or parallelism for downloads.
-        data = self.__yfin_download(symbol, type, period)
+    def __update_symbol(self, symbol, type, period, data):
+        data = data.dropna()
+        data.reset_index(drop=True)
         # process 1d data as single files.
         if type == Ticker.Type.ONE_DAY:
             if self.__is_valid(symbol, data):
@@ -88,15 +89,18 @@ class TickerDataAccess:
             return error_count / period < 0.2
 
     def __write_single_date_key(self, symbol, type, days, data):
-        time = datetime.now() - timedelta(days=days)
-        key = time.strftime(DATE_FORMAT)
+        key = (datetime.now() - timedelta(days=days)).strftime(DATE_FORMAT)
         try:
             segment = data.loc[key:key]
         # sometimes dataframe index would be pd.timestamp instead of string.
         except TypeError:
             self.logger.info(f"index was date for {symbol}:{type} on date {key}")
-            self.logger.info(data.index)
-            segment = data.loc[time:time]
+
+            if not len(data.index): return False # failing with no valid index
+            start = pd.to_datetime(key, format=DATE_FORMAT).tz_localize(data.index[0].tz)
+            end = start + pd.DateOffset(1)
+
+            segment = data.loc[start:end]
             if segment.empty: return False # handle failed recovery
 
         if segment.empty: return True # skip weekends
@@ -169,10 +173,12 @@ class TickerDataAccess:
         else:
             return f"{self.DIR}/{symbol}/{type}/{date}.csv"
 
-    def __yfin_download(self, symbol, type, period):
+    def __yfin_download(self, symbols, type, period):
+        sline = symbols[0] if len(symbols) == 1 else " ".join(symbols)
+
         return yf.download(
             # tickers list or string as well
-            tickers = symbol,
+            tickers = sline,
 
             # use "period" instead of start/end
             # valid periods: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
