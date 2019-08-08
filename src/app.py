@@ -1,6 +1,9 @@
 import logging
 import os
+import boto3
+
 from datetime import timedelta
+
 
 from storage import LocalCachedS3Storage
 
@@ -16,6 +19,8 @@ from sentiment.analyzers import SentimentAnalyzer
 
 class AppContext:
     APP_BUCKET = "fine.data"
+    APP_BUILDS = "fine.builds"
+    APP_PKG_NAME = "lambda.zip"
 
     def __init__(self):
         self.__taccess = None
@@ -127,4 +132,28 @@ def lambda_twitter_update(event, context):
     app.logger.info("started twitter update")
     app.twitter_update()
     app.logger.info("finished twitter update")
+    return {'resultCode': 200}
+
+APPLOGIC_LAMBDA_NAMES = ["lambda_ticker_1h_update", "lambda_ticker_1m_update",
+    "lambda_ticker_5m_update", "lambda_ticker_1d_update", "lambda_ticker_opts_update",
+    "lambda_twitter_update"]
+
+def lambda_finalize_deployment(event, context):
+    app = AppContext()
+    key = event.Records[0].s3.object.key
+    bucket = event.Records[0].s3.bucket.name
+    version = event.Records[0].s3.object.versionId
+
+    if bucket == app.APP_BUILDS and key == app.APP_PKG_NAME and version:
+        app.logger.info(f"triggeed deplyment for {bucket}:{key} with ver. {version}")
+        client = boto3.client('lambda')
+        for fname in APPLOGIC_LAMBDA_NAMES:
+            client.update_function_code(
+                FunctionName=fname,
+                S3Bucket=bucket,
+                S3Key=key,
+                S3ObjectVersion=version)
+            app.logger.info(f"finished deplyment for {fname}")
+
+    app.logger.info("finished all deplyments.")
     return {'resultCode': 200}
