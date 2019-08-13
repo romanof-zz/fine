@@ -33,8 +33,10 @@ class TickerDataAccess:
 
         if type == Ticker.Type.OPTIONS:
             updated_symbols = self.__update_options(symbols)
+        elif type == Ticker.Type.ONE_DAY:
+            updated_symbols = self.__update_1d_symbols(symbols)
         else:
-            updated_symbols = self.__update_symbols(symbols, type, period)
+            updated_symbols = self.__update_periodic_symbols(symbols, type, period)
 
         updated = len(updated_symbols)
         self.logger.info(f"updated symbols {updated}")
@@ -60,35 +62,43 @@ class TickerDataAccess:
         self.storage.put(f"{self.DIR}/{symbol}/opts/puts/{datetime.now().strftime(DATE_FORMAT)}_{exp}.csv", data.puts.to_csv())
         self.logger.info(f"updated options for {symbol}")
 
-    def __update_symbols(self, symbols, type, period):
+    def __update_1d_symbols(self, symbols):
+        data = yf.Tickers(" ".join(symbols))
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            [executor.submit(self.__update_single_1d_symbol, symbol, data) for symbol in symbols]
+        return symbols
+
+    def __update_single_1d_symbol(self, symbol, data):
+        try:
+            tickers = getattr(data.tickers, symbol).history('max')
+        except ValueError:
+            tickers = getattr(data.tickers, symbol).history(start='1930-01-01')
+        self.storage.put(f"{self.DIR}/{symbol}/1d.csv", tickers.to_csv())
+        self.logger.info(f"updated 1d tickers for {symbol}")
+
+    def __update_periodic_symbols(self, symbols, type, period):
         updated = []
         data = self.__yfin_download(symbols, type, period)
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-            futures = {executor.submit(self.__update_symbol, symbol, type, period, data if len(symbols) == 1 else data[symbol]) : symbol for symbol in symbols}
+            futures = {executor.submit(self.__update_single_periodic_symbol, symbol, type, period, data if len(symbols) == 1 else data[symbol]) : symbol for symbol in symbols}
             for future in concurrent.futures.as_completed(futures):
                 if future.result(): updated.append(futures[future])
         return updated
 
-    def __update_symbol(self, symbol, type, period, data):
+    def __update_single_periodic_symbol(self, symbol, type, period, data):
         data = data.dropna()
         data.reset_index(drop=True)
-        # process 1d data as single files.
-        if type == Ticker.Type.ONE_DAY:
-            if self.__is_valid(symbol, data):
-                self.storage.put(self.__ticker_filename(symbol, type), data.to_csv())
-                self.logger.info(f"updated {symbol} for {type}")
-                return True
-            else: return False
-        else:
-            error_count = 0
-            if data.empty: return False # remove non-loaded symbols
-            with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-                futures = [executor.submit(self.__write_single_date_key, symbol, type, days, data) for days in range(1, period+1)]
-                for future in concurrent.futures.as_completed(futures):
-                    if not future.result(): error_count+=1
-            # consider 20% missing data valid
-            self.logger.info(f"{symbol}: errors {error_count} for period {period}")
-            return error_count / period < 0.2
+
+        error_count = 0
+        if data.empty: return False # remove non-loaded symbols
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            futures = [executor.submit(self.__write_single_date_key, symbol, type, days, data) for days in range(1, period+1)]
+            for future in concurrent.futures.as_completed(futures):
+                if not future.result(): error_count+=1
+
+        # consider 20% missing data valid
+        self.logger.info(f"{symbol}: errors {error_count} for period {period}")
+        return error_count / period < 0.2
 
     def __write_single_date_key(self, symbol, type, days, data):
         key = (datetime.now() - timedelta(days=days)).strftime(DATE_FORMAT)
@@ -188,7 +198,7 @@ class TickerDataAccess:
             period = period if period == "max" else f"{period}d",
 
             # use start only to limit max exepctions 'over 100y of data'
-            start = '1930-01-01' if period == "max" else None,
+            # start = '1930-01-01' if period == "max" else None,
 
             # fetch data by interval (including intraday if period < 60 days)
             # valid intervals: 1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,3mo

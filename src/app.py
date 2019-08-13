@@ -131,10 +131,10 @@ def lambda_ticker_opts_update(event, context):
 
 def lambda_ticker_1d_update(event, context):
     app = AppContext()
-    # needs ~4h40m to complete all
-    for i in range(0, 10):
+    # needs ~2h to complete all
+    for i in range(0, 17):
         app.logger.info(f"iteration {i}")
-        if not app.update(None, Ticker.Type.ONE_DAY, 'max', 7): break
+        if not app.update(None, Ticker.Type.ONE_DAY, 'max', 10): break
     return {'resultCode': 200}
 
 def lambda_twitter_update(event, context):
@@ -144,7 +144,7 @@ def lambda_twitter_update(event, context):
     app.logger.info("finished twitter update")
     return {'resultCode': 200}
 
-APPLOGIC_LAMBDA_NAMES = ["update_twitter", "update_options", "update_5m_tickers",
+APPLOGIC_LAMBDA_NAMES = ["deployment", "update_twitter", "update_options", "update_5m_tickers",
     "update_1d_tickers", "update_1h_tickers", "update_1m_tickers"]
 
 def lambda_finalize_deployment(event, context):
