@@ -89,7 +89,7 @@ class AppContext:
 
     def update(self, symbols, type, period, limit):
         if not symbols: symbols = self.__ticker_access().symbols2update(type, limit)
-        if symbols: self.__ticker_access().update(symbols, type, period)
+        return self.__ticker_access().update(symbols, type, period)
 
     def twitter_update(self):
         self.__twitter_access().update_all()
@@ -98,33 +98,43 @@ class AppContext:
         return SentimentAnalyzer(self.__twitter_access()).extract_terms(date)
 
 def lambda_ticker_1h_update(event, context):
+    # needs ~1h40mins to complete all
     app = AppContext()
-    for i in range(0, 10):
-        app.update(None, Ticker.Type.ONE_HOUR, 1, 10)
+    for i in range(0, 100):
+        app.logger.info(f"iteration {i}")
+        if not app.update(None, Ticker.Type.ONE_HOUR, 1, 2): break
     return {'resultCode': 200}
 
 def lambda_ticker_5m_update(event, context):
+    # needs ~2h to complete all
     app = AppContext()
     for i in range(0, 10):
-        app.update(None, Ticker.Type.FIVE_MIN, 1, 10)
+        app.logger.info(f"iteration {i}")
+        if not app.update(None, Ticker.Type.FIVE_MIN, 1, 16): break
     return {'resultCode': 200}
 
 def lambda_ticker_1m_update(event, context):
     app = AppContext()
+    # needs ~4h40m to complete all
     for i in range(0, 10):
-        app.update(None, Ticker.Type.ONE_MIN, 1, 10)
+        app.logger.info(f"iteration {i}")
+        if not app.update(None, Ticker.Type.ONE_MIN, 1, 7): break
     return {'resultCode': 200}
 
 def lambda_ticker_opts_update(event, context):
     app = AppContext()
+    # needs ~4h40m to complete all
     for i in range(0, 10):
-        app.update(None, Ticker.Type.OPTIONS, 1, 10)
+        app.logger.info(f"iteration {i}")
+        if not app.update(None, Ticker.Type.OPTIONS, 1, 7): break
     return {'resultCode': 200}
 
 def lambda_ticker_1d_update(event, context):
     app = AppContext()
+    # needs ~4h40m to complete all
     for i in range(0, 10):
-        app.update(None, Ticker.Type.ONE_DAY, 'max', 10)
+        app.logger.info(f"iteration {i}")
+        if not app.update(None, Ticker.Type.ONE_DAY, 'max', 7): break
     return {'resultCode': 200}
 
 def lambda_twitter_update(event, context):
@@ -134,25 +144,19 @@ def lambda_twitter_update(event, context):
     app.logger.info("finished twitter update")
     return {'resultCode': 200}
 
-APPLOGIC_LAMBDA_NAMES = ["lambda_ticker_1h_update", "lambda_ticker_1m_update",
-    "lambda_ticker_5m_update", "lambda_ticker_1d_update", "lambda_ticker_opts_update",
-    "lambda_twitter_update"]
+APPLOGIC_LAMBDA_NAMES = ["update_twitter", "update_options", "update_5m_tickers",
+    "update_1d_tickers", "update_1h_tickers", "update_1m_tickers"]
 
 def lambda_finalize_deployment(event, context):
     app = AppContext()
-    key = event.Records[0].s3.object.key
-    bucket = event.Records[0].s3.bucket.name
-    version = event.Records[0].s3.object.versionId
+    bucket = event['Records'][0]['s3']['bucket']['name']
+    key = event['Records'][0]['s3']['object']['key']
 
-    if bucket == app.APP_BUILDS and key == app.APP_PKG_NAME and version:
-        app.logger.info(f"triggeed deplyment for {bucket}:{key} with ver. {version}")
+    if bucket == app.APP_BUILDS and key == app.APP_PKG_NAME:
+        app.logger.info(f"triggeed deplyment for {bucket}:{key}")
         client = boto3.client('lambda')
         for fname in APPLOGIC_LAMBDA_NAMES:
-            client.update_function_code(
-                FunctionName=fname,
-                S3Bucket=bucket,
-                S3Key=key,
-                S3ObjectVersion=version)
+            client.update_function_code(FunctionName=fname, S3Bucket=bucket, S3Key=key)
             app.logger.info(f"finished deplyment for {fname}")
 
     app.logger.info("finished all deplyments.")

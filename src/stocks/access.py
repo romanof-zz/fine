@@ -29,6 +29,7 @@ class TickerDataAccess:
     def update(self, symbols, type, period):
         requested = len(symbols)
         self.logger.info(f"requested symbols {requested}")
+        if not requested: return False
 
         if type == Ticker.Type.OPTIONS:
             updated_symbols = self.__update_options(symbols)
@@ -38,11 +39,12 @@ class TickerDataAccess:
         updated = len(updated_symbols)
         self.logger.info(f"updated symbols {updated}")
         self.__reduce_updated(updated_symbols, type, requested-updated)
+        return True
 
     def __update_options(self, symbols):
         data = yf.Tickers(" ".join(symbols))
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-            [executor.submit(self.__update_single_option, symbol, getattr(data, symbol)) for symbol in symbols]
+            [executor.submit(self.__update_single_option, symbol, getattr(data.tickers, symbol)) for symbol in symbols]
         return symbols
 
     def __update_single_option(self, symbol, obj):
