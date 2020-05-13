@@ -1,5 +1,7 @@
 ## about
 
+![logo](https://i.imgur.com/yJQkQKp.jpg "Indeed it is")
+
 FiNe is a financial education game, that allow people to learn about various financial instruments they have available to them at no price. Those instruments may include: *Bank Accounts*, *Investment*, *Credit*, *Loans*.
 
 The first MVP version would concentrate on *Investment*
