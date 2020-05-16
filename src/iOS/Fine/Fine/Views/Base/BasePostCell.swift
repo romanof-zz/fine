@@ -12,8 +12,4 @@ class BasePostCell: BaseTableViewCell {
     func setup(with post: Post) {
         //do nothing, virtual method
     }
-
-    class var cellHeight: CGFloat {
-        return 0
-    }
 }

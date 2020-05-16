@@ -15,6 +15,7 @@ class CommentsViewController: BaseViewController {
     @IBOutlet weak var commentButton: UIButton!
     @IBOutlet weak var commentsTextView: UITextField!
     @IBOutlet weak var tableView: UITableView!
+
     var comments: [Comment] = []
 
     override func viewDidLoad() {
@@ -35,7 +36,13 @@ class CommentsViewController: BaseViewController {
     }
 
     @IBAction func sendTapped(_ sender: Any) {
-        Utils.showAlert(with: "NOT IMPLEMENTED")
+        guard let user = comments.first?.user else { return }
+        let comment = Comment(id: 112, user: user, text: commentsTextView.text ?? "", timestamp: Date.timeIntervalSinceReferenceDate, isLiked: false, likesCount: 0)
+        comments.append(comment)
+        tableView.reloadData()
+
+        commentsTextView.text = nil
+        commentButton.isEnabled = false
     }
 }
 
@@ -59,9 +66,5 @@ extension CommentsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }
-}
-
-extension CommentsViewController: UITextFieldDelegate {
-
 }
 

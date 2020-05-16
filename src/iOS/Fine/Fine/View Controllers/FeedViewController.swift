@@ -8,7 +8,7 @@
 
 import UIKit
 
-private enum PostCellType: String {
+private enum FeedPostCellType: String {
     case bid
     case video
 }
@@ -19,7 +19,7 @@ class FeedViewController: BaseViewController {
 
     private(set) var posts: [Post] = []
 
-    private var cellTypes: [PostCellType: BasePostCell.Type] = [.bid : BidPostCell.self,
+    private var cellTypes: [FeedPostCellType: BasePostCell.Type] = [.bid : BidPostCell.self,
                                                                 .video: VideoPostCell.self]
 
     private let refreshControl = UIRefreshControl()
@@ -35,7 +35,10 @@ class FeedViewController: BaseViewController {
         tableView.tableFooterView = UIView()
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 200
-        
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         refreshPosts()
     }
 
@@ -62,7 +65,7 @@ extension FeedViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
         let post = posts[indexPath.row]
-        guard let postCellType = PostCellType(rawValue: post.type),
+        guard let postCellType = FeedPostCellType(rawValue: post.type),
             let cellClass = cellTypes[postCellType],
             let cell = tableView.dequeueReusableCell(withIdentifier: cellClass.identifier, for: indexPath) as? BasePostCell
             else { return UITableViewCell() }

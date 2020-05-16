@@ -17,25 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         UINavigationBar.appearance().tintColor = .main
 
-        refreshPortfolio()
-
         return true
     }
-
-    @objc private func refreshPortfolio() {
-        DataManager.shared.networkManager.fetchPortfolio {[weak self] (response) in
-            //self?.refreshControl.endRefreshing()
-
-            switch response {
-            case .Success(let portfolio):
-                //                self?.posts = posts
-                //                self?.tableView.reloadData()
-                print(portfolio.stocks)
-            case .Error(_):
-                Utils.showAlert(with: "Error fetching portfolio")
-            }
-        }
-    }
-
 }
 

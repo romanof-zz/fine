@@ -11,7 +11,7 @@ import UIKit
 class Comment: FBaseModel {
     var user: User
     var text: String
-    var timestamp: Int
+    var timestamp: Double
     var isLiked: Bool
     var likesCount: Int
 
@@ -22,7 +22,7 @@ class Comment: FBaseModel {
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         text = try container.decode(String.self, forKey: .text)
-        timestamp = try container.decode(Int.self, forKey: .timestamp)
+        timestamp = try container.decode(Double.self, forKey: .timestamp)
 
         user = try container.decode(User.self, forKey: .user)
 
@@ -32,4 +32,13 @@ class Comment: FBaseModel {
         try super.init(from: decoder)
     }
 
+    init(id: Int, user: User, text: String, timestamp: Double, isLiked: Bool, likesCount: Int) {
+        self.user = user
+        self.text = text
+        self.timestamp = timestamp
+        self.isLiked = isLiked
+        self.likesCount = likesCount
+
+        super.init(id: id)
+    }
 }

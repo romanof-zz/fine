@@ -8,5 +8,6 @@ target 'Fine' do
   pod 'StatusAlert', '~> 1.1.1'
   pod 'IHKeyboardAvoiding'
   pod 'DynamicCodable', '1.0'
+  pod 'ILG'
 
 end

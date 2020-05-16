@@ -23,4 +23,8 @@ class FBaseModel: Decodable, Equatable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(Int.self, forKey: .id)
     }
+
+    init(id: Int) {
+        self.id = id
+    }
 }

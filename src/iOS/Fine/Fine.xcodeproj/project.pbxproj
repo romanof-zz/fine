@@ -16,6 +16,9 @@
 		EA2582CB24700F0B00B1A319 /* Portfolio.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2582CA24700F0B00B1A319 /* Portfolio.swift */; };
 		EA2582CD24700F7000B1A319 /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2582CC24700F7000B1A319 /* BaseViewController.swift */; };
 		EA2582CF247013EF00B1A319 /* PortfolioViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2582CE247013EF00B1A319 /* PortfolioViewController.swift */; };
+		EA2582D42470213800B1A319 /* StockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2582D32470213800B1A319 /* StockCell.swift */; };
+		EA2582D824702C8E00B1A319 /* ValueCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2582D724702C8E00B1A319 /* ValueCell.swift */; };
+		EA2582DA24702D7A00B1A319 /* GraphCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2582D924702D7A00B1A319 /* GraphCell.swift */; };
 		EA4ED79C246D42AC0067DC52 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4ED79B246D42AC0067DC52 /* AppDelegate.swift */; };
 		EA4ED7A0246D42AC0067DC52 /* FeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4ED79F246D42AC0067DC52 /* FeedViewController.swift */; };
 		EA4ED7A3246D42AC0067DC52 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EA4ED7A1246D42AC0067DC52 /* Main.storyboard */; };
@@ -57,6 +60,9 @@
 		EA2582CA24700F0B00B1A319 /* Portfolio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Portfolio.swift; sourceTree = "<group>"; };
 		EA2582CC24700F7000B1A319 /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
 		EA2582CE247013EF00B1A319 /* PortfolioViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioViewController.swift; sourceTree = "<group>"; };
+		EA2582D32470213800B1A319 /* StockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockCell.swift; sourceTree = "<group>"; };
+		EA2582D724702C8E00B1A319 /* ValueCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueCell.swift; sourceTree = "<group>"; };
+		EA2582D924702D7A00B1A319 /* GraphCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCell.swift; sourceTree = "<group>"; };
 		EA4ED798246D42AC0067DC52 /* Fine.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fine.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA4ED79B246D42AC0067DC52 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EA4ED79F246D42AC0067DC52 /* FeedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedViewController.swift; sourceTree = "<group>"; };
@@ -119,6 +125,31 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		EA2582D02470210400B1A319 /* Base */ = {
+			isa = PBXGroup;
+			children = (
+				EA4ED7CA246D59F00067DC52 /* BaseTableViewCell.swift */,
+				EA203023246D618C005573D0 /* BasePostCell.swift */,
+			);
+			path = Base;
+			sourceTree = "<group>";
+		};
+		EA2582D12470210D00B1A319 /* Base */ = {
+			isa = PBXGroup;
+			children = (
+				EA2582CC24700F7000B1A319 /* BaseViewController.swift */,
+			);
+			path = Base;
+			sourceTree = "<group>";
+		};
+		EA2582D22470211500B1A319 /* Utility */ = {
+			isa = PBXGroup;
+			children = (
+				EA203027246D7DC6005573D0 /* WebViewController.swift */,
+			);
+			path = Utility;
+			sourceTree = "<group>";
+		};
 		EA4ED78F246D42AC0067DC52 = {
 			isa = PBXGroup;
 			children = (
@@ -153,11 +184,11 @@
 		EA4ED7AF246D44C60067DC52 /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				EA2582CC24700F7000B1A319 /* BaseViewController.swift */,
+				EA2582D22470211500B1A319 /* Utility */,
+				EA2582D12470210D00B1A319 /* Base */,
 				EA4ED79F246D42AC0067DC52 /* FeedViewController.swift */,
-				EA20302B246D8033005573D0 /* CommentsViewController.swift */,
 				EA2582CE247013EF00B1A319 /* PortfolioViewController.swift */,
-				EA203027246D7DC6005573D0 /* WebViewController.swift */,
+				EA20302B246D8033005573D0 /* CommentsViewController.swift */,
 			);
 			path = "View Controllers";
 			sourceTree = "<group>";
@@ -174,11 +205,13 @@
 		EA4ED7B1246D44DD0067DC52 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				EA2582D02470210400B1A319 /* Base */,
 				EA4ED7C5246D59990067DC52 /* BidPostCell.swift */,
 				EA5434C1246D810A0086C535 /* CommentCell.swift */,
 				EA4ED7C7246D59A70067DC52 /* VideoPostCell.swift */,
-				EA4ED7CA246D59F00067DC52 /* BaseTableViewCell.swift */,
-				EA203023246D618C005573D0 /* BasePostCell.swift */,
+				EA2582D32470213800B1A319 /* StockCell.swift */,
+				EA2582D724702C8E00B1A319 /* ValueCell.swift */,
+				EA2582D924702D7A00B1A319 /* GraphCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -363,6 +396,7 @@
 				EA5434D3246FF6C70086C535 /* NetworkManager.swift in Sources */,
 				EA2582CD24700F7000B1A319 /* BaseViewController.swift in Sources */,
 				EA5434D8246FF6C70086C535 /* ErrorHandlers.swift in Sources */,
+				EA2582D824702C8E00B1A319 /* ValueCell.swift in Sources */,
 				EA4ED79C246D42AC0067DC52 /* AppDelegate.swift in Sources */,
 				EA5434CC246FF68C0086C535 /* SimpleError.swift in Sources */,
 				EA5434D7246FF6C70086C535 /* Alamowrapper.swift in Sources */,
@@ -370,6 +404,7 @@
 				EA4ED7BB246D46A50067DC52 /* FBaseModel.swift in Sources */,
 				EA5434D6246FF6C70086C535 /* NetworkMiddleware.swift in Sources */,
 				EA2582CB24700F0B00B1A319 /* Portfolio.swift in Sources */,
+				EA2582D42470213800B1A319 /* StockCell.swift in Sources */,
 				EA5434C6246FF4250086C535 /* GenericError.swift in Sources */,
 				EA4ED7C4246D58CF0067DC52 /* Utils.swift in Sources */,
 				EA4ED7CB246D59F00067DC52 /* BaseTableViewCell.swift in Sources */,
@@ -382,6 +417,7 @@
 				EA5434D4246FF6C70086C535 /* JSONDecoder.swift in Sources */,
 				EA4ED7B5246D45370067DC52 /* Post.swift in Sources */,
 				EA20302C246D8033005573D0 /* CommentsViewController.swift in Sources */,
+				EA2582DA24702D7A00B1A319 /* GraphCell.swift in Sources */,
 				EA4ED7C2246D4BA40067DC52 /* DataManager.swift in Sources */,
 				EA203028246D7DC6005573D0 /* WebViewController.swift in Sources */,
 				EA4ED7C8246D59A70067DC52 /* VideoPostCell.swift in Sources */,

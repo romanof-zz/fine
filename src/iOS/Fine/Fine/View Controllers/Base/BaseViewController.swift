@@ -29,6 +29,7 @@ class BaseViewController: UIViewController {
         self.navigationController?.navigationBar.shadowImage = UIImage()
 
         navigationController?.navigationBar.barTintColor = .main
+        navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.isTranslucent = false
     }
 
