@@ -14,7 +14,17 @@ class StockCell: BaseTableViewCell {
     @IBOutlet weak var companyLabel: UILabel!
 
     func setup(with stockItem: StockItem) {
-        companyLabel.text = stockItem.name
+        companyLabel.text = "\(stockItem.name) (\(stockItem.percent))" -> move to right, closer to the price
+
+        (close - open) /close on tap
+
+        baraban
+
+        0.1 - 100, default 1, step 0.1
+
+        smooth graph
+
+        Fine logo
 
         priceLabel.text = String(format: "$%.02f", stockItem.close)
 
