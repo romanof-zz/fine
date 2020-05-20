@@ -19,6 +19,9 @@
 		EA2582D42470213800B1A319 /* StockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2582D32470213800B1A319 /* StockCell.swift */; };
 		EA2582D824702C8E00B1A319 /* ValueCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2582D724702C8E00B1A319 /* ValueCell.swift */; };
 		EA2582DA24702D7A00B1A319 /* GraphCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2582D924702D7A00B1A319 /* GraphCell.swift */; };
+		EA2582DC2475353900B1A319 /* UserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2582DB2475353900B1A319 /* UserViewController.swift */; };
+		EA2582DE2475504B00B1A319 /* LeadersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2582DD2475504B00B1A319 /* LeadersViewController.swift */; };
+		EA2582E02475561700B1A319 /* LeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2582DF2475561700B1A319 /* LeaderCell.swift */; };
 		EA4ED79C246D42AC0067DC52 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4ED79B246D42AC0067DC52 /* AppDelegate.swift */; };
 		EA4ED7A0246D42AC0067DC52 /* FeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4ED79F246D42AC0067DC52 /* FeedViewController.swift */; };
 		EA4ED7A3246D42AC0067DC52 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EA4ED7A1246D42AC0067DC52 /* Main.storyboard */; };
@@ -28,7 +31,7 @@
 		EA4ED7B7246D45EC0067DC52 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4ED7B6246D45EC0067DC52 /* Comment.swift */; };
 		EA4ED7B9246D461A0067DC52 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4ED7B8246D461A0067DC52 /* User.swift */; };
 		EA4ED7BB246D46A50067DC52 /* FBaseModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4ED7BA246D46A50067DC52 /* FBaseModel.swift */; };
-		EA4ED7C0246D4ABB0067DC52 /* NetworkManager+Posts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4ED7BF246D4ABB0067DC52 /* NetworkManager+Posts.swift */; };
+		EA4ED7C0246D4ABB0067DC52 /* NetworkManager+Fine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4ED7BF246D4ABB0067DC52 /* NetworkManager+Fine.swift */; };
 		EA4ED7C2246D4BA40067DC52 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4ED7C1246D4BA40067DC52 /* DataManager.swift */; };
 		EA4ED7C4246D58CF0067DC52 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4ED7C3246D58CE0067DC52 /* Utils.swift */; };
 		EA4ED7C6246D59990067DC52 /* BidPostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4ED7C5246D59990067DC52 /* BidPostCell.swift */; };
@@ -63,6 +66,9 @@
 		EA2582D32470213800B1A319 /* StockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockCell.swift; sourceTree = "<group>"; };
 		EA2582D724702C8E00B1A319 /* ValueCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueCell.swift; sourceTree = "<group>"; };
 		EA2582D924702D7A00B1A319 /* GraphCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCell.swift; sourceTree = "<group>"; };
+		EA2582DB2475353900B1A319 /* UserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserViewController.swift; sourceTree = "<group>"; };
+		EA2582DD2475504B00B1A319 /* LeadersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeadersViewController.swift; sourceTree = "<group>"; };
+		EA2582DF2475561700B1A319 /* LeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderCell.swift; sourceTree = "<group>"; };
 		EA4ED798246D42AC0067DC52 /* Fine.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fine.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA4ED79B246D42AC0067DC52 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EA4ED79F246D42AC0067DC52 /* FeedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedViewController.swift; sourceTree = "<group>"; };
@@ -74,7 +80,7 @@
 		EA4ED7B6246D45EC0067DC52 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		EA4ED7B8246D461A0067DC52 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		EA4ED7BA246D46A50067DC52 /* FBaseModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FBaseModel.swift; sourceTree = "<group>"; };
-		EA4ED7BF246D4ABB0067DC52 /* NetworkManager+Posts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkManager+Posts.swift"; sourceTree = "<group>"; };
+		EA4ED7BF246D4ABB0067DC52 /* NetworkManager+Fine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkManager+Fine.swift"; sourceTree = "<group>"; };
 		EA4ED7C1246D4BA40067DC52 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		EA4ED7C3246D58CE0067DC52 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		EA4ED7C5246D59990067DC52 /* BidPostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidPostCell.swift; sourceTree = "<group>"; };
@@ -145,6 +151,7 @@
 		EA2582D22470211500B1A319 /* Utility */ = {
 			isa = PBXGroup;
 			children = (
+				EA2582DB2475353900B1A319 /* UserViewController.swift */,
 				EA203027246D7DC6005573D0 /* WebViewController.swift */,
 			);
 			path = Utility;
@@ -189,6 +196,7 @@
 				EA4ED79F246D42AC0067DC52 /* FeedViewController.swift */,
 				EA2582CE247013EF00B1A319 /* PortfolioViewController.swift */,
 				EA20302B246D8033005573D0 /* CommentsViewController.swift */,
+				EA2582DD2475504B00B1A319 /* LeadersViewController.swift */,
 			);
 			path = "View Controllers";
 			sourceTree = "<group>";
@@ -212,6 +220,7 @@
 				EA2582D32470213800B1A319 /* StockCell.swift */,
 				EA2582D724702C8E00B1A319 /* ValueCell.swift */,
 				EA2582D924702D7A00B1A319 /* GraphCell.swift */,
+				EA2582DF2475561700B1A319 /* LeaderCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -244,7 +253,7 @@
 		EA5434C3246FF3C70086C535 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
-				EA4ED7BF246D4ABB0067DC52 /* NetworkManager+Posts.swift */,
+				EA4ED7BF246D4ABB0067DC52 /* NetworkManager+Fine.swift */,
 				EA5434C4246FF4140086C535 /* Essentials */,
 			);
 			path = Networking;
@@ -394,6 +403,7 @@
 				EA5434D5246FF6C70086C535 /* NetworkError.swift in Sources */,
 				EA203024246D618C005573D0 /* BasePostCell.swift in Sources */,
 				EA5434D3246FF6C70086C535 /* NetworkManager.swift in Sources */,
+				EA2582E02475561700B1A319 /* LeaderCell.swift in Sources */,
 				EA2582CD24700F7000B1A319 /* BaseViewController.swift in Sources */,
 				EA5434D8246FF6C70086C535 /* ErrorHandlers.swift in Sources */,
 				EA2582D824702C8E00B1A319 /* ValueCell.swift in Sources */,
@@ -410,13 +420,15 @@
 				EA4ED7CB246D59F00067DC52 /* BaseTableViewCell.swift in Sources */,
 				EA4ED7C6246D59990067DC52 /* BidPostCell.swift in Sources */,
 				EA5434C2246D810A0086C535 /* CommentCell.swift in Sources */,
-				EA4ED7C0246D4ABB0067DC52 /* NetworkManager+Posts.swift in Sources */,
+				EA4ED7C0246D4ABB0067DC52 /* NetworkManager+Fine.swift in Sources */,
 				EA5434CA246FF64F0086C535 /* GenericResponse.swift in Sources */,
 				EA2582CF247013EF00B1A319 /* PortfolioViewController.swift in Sources */,
 				EA203026246D65D7005573D0 /* Extensions.swift in Sources */,
+				EA2582DC2475353900B1A319 /* UserViewController.swift in Sources */,
 				EA5434D4246FF6C70086C535 /* JSONDecoder.swift in Sources */,
 				EA4ED7B5246D45370067DC52 /* Post.swift in Sources */,
 				EA20302C246D8033005573D0 /* CommentsViewController.swift in Sources */,
+				EA2582DE2475504B00B1A319 /* LeadersViewController.swift in Sources */,
 				EA2582DA24702D7A00B1A319 /* GraphCell.swift in Sources */,
 				EA4ED7C2246D4BA40067DC52 /* DataManager.swift in Sources */,
 				EA203028246D7DC6005573D0 /* WebViewController.swift in Sources */,

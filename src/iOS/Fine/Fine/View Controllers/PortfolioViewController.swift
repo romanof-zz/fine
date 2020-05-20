@@ -19,6 +19,8 @@ class PortfolioViewController: BaseViewController {
 
     var portfolio: Portfolio?
 
+    private var percentMode = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -30,7 +32,7 @@ class PortfolioViewController: BaseViewController {
         tableView.tableFooterView = UIView()
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 200
-        tableView.allowsSelection = false
+
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -50,6 +52,51 @@ class PortfolioViewController: BaseViewController {
                 Utils.showAlert(with: "Error fetching portfolio")
             }
         }
+    }
+
+    func showBid(_ with: [String: Any]) {
+        let action = {[weak self] in
+            guard let symbol = with["symbol"] as? String,
+                let bidValue = with["value"] as? Double else { return }
+
+            if let cellIndex = self?.portfolio?.stocks.firstIndex(where: { (stockItem) -> Bool in
+                return stockItem.symbol.uppercased() == symbol.uppercased()
+                }) {
+
+                self?.animateBid(bidValue, at: cellIndex)
+            }
+        }
+
+        if !isViewLoaded {
+            loadView()
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                action()
+            }
+        } else {
+            action()
+        }
+    }
+
+    private var bidValueToAnimate: Double?
+    private var cellIndexToAnimate: Int?
+    private func animateBid(_ bidValue: Double, at cellIndex: Int) {
+
+        bidValueToAnimate = bidValue
+        cellIndexToAnimate = cellIndex
+
+        let indexPath = IndexPath(row: cellIndex, section: 2)
+        tableView.scrollToRow(at: indexPath, at: .middle, animated: true)
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {[weak self] in
+//            self?.tableView.reloadRows(at: [indexPath], with: .automatic)
+//        }
+
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        bidValueToAnimate = nil
+        cellIndexToAnimate = nil
     }
 }
 
@@ -86,7 +133,12 @@ extension PortfolioViewController: UITableViewDataSource {
             return cell
         case 2:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: StockCell.identifier, for: indexPath) as? StockCell else { return UITableViewCell() }
-            cell.setup(with: portfolio.stocks[indexPath.row])
+            cell.setup(with: portfolio.stocks[indexPath.row], percentMode: percentMode)
+
+            if let bidValueToAnimate = bidValueToAnimate,
+                let cellIndexToAnimate = cellIndexToAnimate, cellIndexToAnimate == indexPath.row {
+                cell.animateBid(bidValueToAnimate)
+            }
             return cell
         default:
             let cell = UITableViewCell()
@@ -99,6 +151,8 @@ extension PortfolioViewController: UITableViewDataSource {
 extension PortfolioViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        percentMode = !percentMode
+        tableView.reloadData()
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

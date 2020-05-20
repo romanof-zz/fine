@@ -36,8 +36,11 @@ class CommentsViewController: BaseViewController {
     }
 
     @IBAction func sendTapped(_ sender: Any) {
-        guard let user = comments.first?.user else { return }
-        let comment = Comment(id: 112, user: user, text: commentsTextView.text ?? "", timestamp: Date.timeIntervalSinceReferenceDate, isLiked: false, likesCount: 0)
+        guard let user = DataManager.shared.user else {
+            Utils.showAlert(with: "Couldn't fetch user, so can't post comments")
+            return
+        }
+        let comment = Comment(id: 112, user: user, text: commentsTextView.text ?? "", timestamp: NSDate().timeIntervalSince1970, isLiked: false, likesCount: 0)
         comments.append(comment)
         tableView.reloadData()
 

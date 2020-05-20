@@ -31,13 +31,13 @@
       "size" : "40x40"
     },
     {
-      "filename" : "Screenshot 2020-05-14 11.57.01.png",
+      "filename" : "icon.png",
       "idiom" : "iphone",
       "scale" : "2x",
       "size" : "60x60"
     },
     {
-      "filename" : "Screenshot 2020-05-14 11.57.01-1.png",
+      "filename" : "icon-1.png",
       "idiom" : "iphone",
       "scale" : "3x",
       "size" : "60x60"
@@ -73,22 +73,25 @@
       "size" : "40x40"
     },
     {
+      "filename" : "icon-3.png",
       "idiom" : "ipad",
       "scale" : "1x",
       "size" : "76x76"
     },
     {
+      "filename" : "icon-4.png",
       "idiom" : "ipad",
       "scale" : "2x",
       "size" : "76x76"
     },
     {
+      "filename" : "icon-5.png",
       "idiom" : "ipad",
       "scale" : "2x",
       "size" : "83.5x83.5"
     },
     {
-      "filename" : "Clipart-Email-4411944 (1).png",
+      "filename" : "icon-2.png",
       "idiom" : "ios-marketing",
       "scale" : "1x",
       "size" : "1024x1024"

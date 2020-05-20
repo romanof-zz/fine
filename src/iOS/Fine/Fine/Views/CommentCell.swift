@@ -42,8 +42,9 @@ class CommentCell: BaseTableViewCell {
         let imageName = comment.isLiked ? "icon_liked" : "icon_like"
         likeButton.setImage(UIImage(named: imageName), for: .normal)
 
-        let plusCount = comment.isLiked ? 1 : 0
-        likeButton.setTitle(": \(comment.likesCount + plusCount)", for: .normal)
+        let plusCount = comment.isLiked ? 1 : -1
+        comment.likesCount += plusCount
+        likeButton.setTitle(": \(comment.likesCount)", for: .normal)
 
         Utils.bounceView(likeButton)
     }

@@ -2,6 +2,7 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -15,23 +16,12 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Fine" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="T1M-TR-SmD">
-                                <rect key="frame" x="174.5" y="377.5" width="65" height="41"/>
-                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="34"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="launchLogo" translatesAutoresizingMaskIntoConstraints="NO" id="uEt-gJ-1ni">
-                                <rect key="frame" x="122.5" y="438.5" width="169" height="162"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="nav_logo" translatesAutoresizingMaskIntoConstraints="NO" id="uEt-gJ-1ni">
+                                <rect key="frame" x="157" y="438.5" width="100" height="33.5"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
-                        <constraints>
-                            <constraint firstItem="uEt-gJ-1ni" firstAttribute="centerX" secondItem="T1M-TR-SmD" secondAttribute="centerX" id="Mvm-Br-0bj"/>
-                            <constraint firstItem="T1M-TR-SmD" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="dIp-9a-Dlu"/>
-                            <constraint firstItem="uEt-gJ-1ni" firstAttribute="top" secondItem="T1M-TR-SmD" secondAttribute="bottom" constant="20" id="kc1-qm-LfA"/>
-                            <constraint firstItem="T1M-TR-SmD" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" constant="-50" id="l6X-n4-FE2"/>
-                        </constraints>
+                        <color key="backgroundColor" red="0.17723047729999999" green="0.6465830803" blue="0.99949258569999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                 </viewController>
@@ -41,6 +31,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="launchLogo" width="169" height="162"/>
+        <image name="nav_logo" width="100" height="33.5"/>
     </resources>
 </document>

@@ -59,8 +59,8 @@ class Utils: NSObject {
         return UIStoryboard.init(name: from, bundle: nil).instantiateVC()
     }
     
-    class func bounceView(_ view: UIView) {
-        UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.7, options: [.autoreverse, .beginFromCurrentState], animations: {
+    class func bounceView(_ view: UIView, for duration: TimeInterval = 0.3) {
+        UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.6, options: [.autoreverse, .beginFromCurrentState], animations: {
             view.transform = CGAffineTransform(scaleX: 1.6, y: 1.6)
         }, completion: { (finished) in
             view.transform = .identity

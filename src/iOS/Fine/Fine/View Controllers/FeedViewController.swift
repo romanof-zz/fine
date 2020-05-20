@@ -35,11 +35,35 @@ class FeedViewController: BaseViewController {
         tableView.tableFooterView = UIView()
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 200
+
+        loadUser()
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         refreshPosts()
+    }
+
+    private func loadUser() {
+        DataManager.shared.networkManager.fetchUser {[weak self] (response) in
+            switch response {
+            case .Success(let user):
+                DataManager.shared.user = user
+            case .Error(_):
+                Utils.showAlert(with: "Error fetching user")
+            }
+
+            self?.updateUserButton()
+        }
+    }
+    
+    private func updateUserButton() {
+        navigationItem.leftBarButtonItem = DataManager.shared.user == nil ? nil : UIBarButtonItem(image: UIImage(named: "icon_user"), style: .plain, target: self, action: #selector(userButtonTapped))
+    }
+
+    @objc private func userButtonTapped() {
+        let userVC: UserViewController = Utils.instantiateVC(from: "Main")
+        navigationController?.pushViewController(userVC, animated: true)
     }
 
     @objc private func refreshPosts() {

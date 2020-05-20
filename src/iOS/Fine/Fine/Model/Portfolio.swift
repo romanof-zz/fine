@@ -8,15 +8,20 @@
 import UIKit
 import DynamicCodable
 
-struct StockItem {
-    var name: String = ""
+struct StockItem: Decodable {
+    var symbol: String = ""
     var percent: Double = 0
     var close: Double = 0
     var open: Double = 0
 }
 
+struct PortfolioValue: Decodable {
+    var open: Double
+    var close: Double
+}
+
 class Portfolio: Decodable {
-    var value: Float
+    var value: PortfolioValue
     var timeSeries: [String : [String: Any]] = [:]
 
     var stocks: [StockItem] = []
@@ -27,25 +32,17 @@ class Portfolio: Decodable {
 
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        value = try container.decode(Float.self, forKey: .value)
 
         let timeSeriesDic = try container.decode([String: Any].self, forKey: .timeSeries)
 
         if let timeSeriesDic = timeSeriesDic as? [String: [String: Any]] {
             timeSeries = timeSeriesDic
-
-            //refactor this crap
-            if let stocksValues = timeSeriesDic["stocks"] as? [String: [String: Any]] {
-                for (key, value) in stocksValues {
-                    let percent = value["percent"] as? Double ?? (Double(value["percent"] as? Int ?? 0))
-                    let close = value["close"] as? Double ?? 0
-                    let open = value["open"] as? Double ?? 0
-                    let stockItem = StockItem(name: key, percent: percent, close: close, open: open)
-                    stocks.append(stockItem)
-                }
-            }
-            stocks.sort(by: { $0.name < $1.name })
         }
+        
+        stocks = try container.decode([StockItem].self, forKey: .stocks).sorted(by: { (item1, item2) -> Bool in
+            return item1.percent > item2.percent
+        })
 
+        value = try container.decode(PortfolioValue.self, forKey: .value)
     }
 }

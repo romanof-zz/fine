@@ -9,24 +9,37 @@ import UIKit
 
 class StockCell: BaseTableViewCell {
 
+    @IBOutlet weak var percentLabel: UILabel!
     @IBOutlet weak var priceBkgView: UIView!
     @IBOutlet weak var priceLabel: UILabel!
     @IBOutlet weak var companyLabel: UILabel!
 
-    func setup(with stockItem: StockItem) {
-        companyLabel.text = "\(stockItem.name) (\(stockItem.percent))" -> move to right, closer to the price
+    private var stockItem: StockItem?
 
-        (close - open) /close on tap
+    private var toggled = false
 
-        baraban
+    var percentMode = false
 
-        0.1 - 100, default 1, step 0.1
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        contentView.backgroundColor = .clear
+    }
+    
+    func setup(with stockItem: StockItem, percentMode: Bool) {
+        self.stockItem = stockItem
+        self.percentMode = percentMode
+        redraw()
+    }
 
-        smooth graph
+    private func redraw() {
+        guard let stockItem = stockItem else { return }
 
-        Fine logo
+        companyLabel.text = stockItem.symbol
 
-        priceLabel.text = String(format: "$%.02f", stockItem.close)
+        percentLabel.text = "\(stockItem.percent)%"
+
+        let value = percentMode ? (stockItem.close - stockItem.open) / stockItem.close : stockItem.close
+        priceLabel.text = String(format: "$%.02f", value)
 
         if stockItem.open > stockItem.close {
             priceBkgView.backgroundColor = UIColor(red: 255/255, green: 45/255, blue: 85/255, alpha: 1)
@@ -35,5 +48,13 @@ class StockCell: BaseTableViewCell {
             priceBkgView.backgroundColor = .green
             priceLabel.textColor = UIColor(hex: "075125")
         }
+    }
+
+    func animateBid(_ value: Double) {
+        contentView.backgroundColor = UIColor.yellow
+
+        guard let stockItem = stockItem else { return }
+        percentLabel.text = String(format: "%.1f%%", value + stockItem.percent)
+        Utils.bounceView(percentLabel, for: 1)
     }
 }

@@ -17,5 +17,7 @@ class DataManager: NSObject {
 //    let stateManager = StateManager()
 //    let purchaseManager = PurchaseManager()
 
+    var user: User?
+
     let userColors: [Int: String] = [0: "000000", 1 : "4287f5", 2: "a63ae0", 3: "24ab1d"]
 }

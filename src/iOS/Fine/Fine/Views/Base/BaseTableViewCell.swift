@@ -9,7 +9,6 @@
 import UIKit
 
 class BaseTableViewCell: UITableViewCell, IdentifierProtocol {
-
 }
 
 protocol IdentifierProtocol {

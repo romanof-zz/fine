@@ -110,7 +110,7 @@ public class NetworkMiddleware {
             let statusCode = response.response?.statusCode
             switch statusCode {
             case self.blockedStatusValue:
-                completion(GenericResponse.Error(NetworkError(type:.blocked)))
+                completion(GenericResponse.Error(NetworkError(type: .blocked)))
             case self.forceLogoutStatusValue:
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "ForceLogout"), object: nil)
                 completion(GenericResponse.Error(NetworkError(type:.userWasLoggedOut)))
