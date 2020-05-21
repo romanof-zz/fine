@@ -39,7 +39,7 @@ class StockCell: BaseTableViewCell {
         percentLabel.text = "\(stockItem.percent)%"
 
         let value = percentMode ? (stockItem.close - stockItem.open) / stockItem.close : stockItem.close
-        priceLabel.text = String(format: "$%.02f", value)
+        priceLabel.text = String(format: percentMode ? "%.02f %%" : "$%.02f", value)
 
         if stockItem.open > stockItem.close {
             priceBkgView.backgroundColor = UIColor(red: 255/255, green: 45/255, blue: 85/255, alpha: 1)

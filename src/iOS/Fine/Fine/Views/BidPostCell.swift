@@ -24,6 +24,12 @@ class BidPostCell: BasePostCell {
 
     private var post: Post?
 
+    override func awakeFromNib() {
+        super.awakeFromNib()
+
+        bidButon.titleLabel?.adjustsFontSizeToFitWidth = true
+    }
+    
     override func setup(with post: Post) {
         self.post = post
 

@@ -39,6 +39,20 @@ class GraphCell: BaseTableViewCell {
     func setup(with portfolio: Portfolio) {
         self.portfolio = portfolio
 
+        for key in portfolio.timeSeries.keys.sorted() {
+            let button = UIButton(frame: CGRect(x: 0, y: 0, width: 60, height: 40))
+            button.setTitle(key, for: .normal)
+
+            button.setTitleColor(.orange, for: .normal)
+            button.setTitleColor(.white, for: .selected)
+
+            button.clipsToBounds = true
+            button.layer.cornerRadius = 5
+            button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+            buttonsStack.addArrangedSubview(button)
+            buttons.append(button)
+        }
+
         if let firstButton = buttonsStack.arrangedSubviews[0] as? UIButton {
             firstButton.isSelected = true
             firstButton.backgroundColor = .systemOrange
@@ -50,7 +64,7 @@ class GraphCell: BaseTableViewCell {
         }
     }
 
-    @IBAction func buttonTapped(_ sender: UIButton) {
+    @objc func buttonTapped(_ sender: UIButton) {
         for view in buttonsStack.arrangedSubviews {
             guard let button = view as? UIButton else { return }
             button.isSelected = false
@@ -68,11 +82,7 @@ class GraphCell: BaseTableViewCell {
 
     private func updateGraph(for series: String) {
         guard let portfolio = portfolio else { return }
-
-        let mapping: [String : String] = ["1 day" : "5min"]
-
-        guard let dataKey = mapping[series] else { return }
-        guard let data = portfolio.timeSeries[dataKey] else { return }
+        guard let data = portfolio.timeSeries[series] else { return }
 
         currentValues = data.map { (key, value) -> Double in
             if let doubleValue = value as? Double {

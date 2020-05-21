@@ -24,11 +24,13 @@ class LeaderCell: BaseTableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         leaderImageView.image = UIImage(named: "icon_user")?.withRenderingMode(.alwaysTemplate)
+        followActivityIndicator.isHidden = true
     }
 
     override func prepareForReuse() {
         super.prepareForReuse()
         leaderImageView.tintColor = .main
+        followActivityIndicator.isHidden = true
     }
 
     func setup(with expert: Expert) {
