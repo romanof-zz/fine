@@ -9,3 +9,25 @@ __pycache__
 *.csv
 *.zip
 *.whl
+
+# iOS Xcode
+.DS_Store
+*/build/*
+*.pbxuser
+!default.pbxuser
+DerivedData
+*.xccheckout
+*.xcarchive
+contents.xcworkspacedata
+Carthage
+*.ipa
+*.dSYM.zip
+fastlane/report.xml
+fastlane/Preview.html
+*/xcuserdata/*
+*/xcshareddata/*
+
+# iOS CocoaPods
+Pods
+Podfile.lock
+src/iOS/Fine/Fine.xcodeproj/project.xcworkspace/
