@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">FiNe</string>
+    <string name="title_feed">Feed</string>
+    <string name="title_portfolio">Portfolio</string>
+    <string name="title_leaders">Leaders</string>
+
+    <string name="convert_feed_item_title_bought_3p"><![CDATA[<b>%s</b> bought <b>%s</b> at %s ]]></string>
+    <string name="convert_feed_item_title_sold_3p"  ><![CDATA[<b>%s</b> sold <b>%s</b> at %s ]]></string>
+
+
+    <string name="scrub_empty">""</string>
+    <string name="scrub_format">$%1$s</string>
+
+    <string name="one_day">"1d"</string>
+    <string name="one_week">"1w"</string>
+    <string name="one_month">"1m"</string>
+    <string name="ytd">"ytd"</string>
+    <string name="leaderboard">LEADERBOARD</string>
+    <string name="experts">EXPERTS</string>
+    <string name="followed">FOLLOWED</string>
+    <string name="follow">FOLLOW</string>
+    <string name="send">Send</string>
+    <string name="make_bid">MAKE BID</string>
+    <string name="cancel">Cancel</string>
+    <string name="comments">comments:</string>
+</resources>

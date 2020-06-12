@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_feed">
+
+    <fragment
+        android:id="@+id/navigation_feed"
+        android:name="com.fine.FragFeed"
+        android:label="@string/title_feed"
+        tools:layout="@layout/frag_feed">
+        <action
+            android:id="@+id/action_nav_main_to_nav_youtube"
+            app:destination="@id/navigation_youtube" />
+        <action
+            android:id="@+id/action_nav_main_to_nav_comments"
+            app:destination="@id/navigation_comments" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_portfolio"
+        android:name="com.fine.FragPortfolio"
+        android:label="@string/title_portfolio"
+        tools:layout="@layout/fragment_portfolio">
+        <argument
+            android:name="selected_symbol"
+            app:argType="string" />
+        <argument
+            android:name="bid_value"
+            app:argType="java.lang.Double" />
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/navigation_leaders"
+        android:name="com.fine.FragLeaders"
+        android:label="@string/title_leaders"
+        tools:layout="@layout/fragment_leaders" />
+
+    <fragment
+        android:id="@+id/navigation_youtube"
+        android:name="com.fine.FragYoutubePlay"
+        tools:layout="@layout/frag_youtube_play">
+        <argument
+            android:name="url"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_comments"
+        android:name="com.fine.FragComments"
+        tools:layout="@layout/frag_comments">
+        <argument
+            android:name="post"
+            app:argType="com.fine.data.Post" />
+    </fragment>
+</navigation>

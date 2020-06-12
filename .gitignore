@@ -31,3 +31,14 @@ fastlane/Preview.html
 Pods
 Podfile.lock
 src/iOS/Fine/Fine.xcodeproj/project.xcworkspace/
+
+
+# android
+*.iml
+.gradle
+local.properties
+.idea
+.DS_Store
+build
+captures
+.externalNativeBuild
