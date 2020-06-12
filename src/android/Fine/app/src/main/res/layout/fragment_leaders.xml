@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:nestedScrollingEnabled="true">
+
+    <TextView
+        android:id="@+id/text_experts"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+
+        android:textColor="@color/white"
+        android:background="@color/colorPrimary"
+
+        android:gravity="center_vertical|left"
+        android:paddingLeft="12dp"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="@string/experts"/>
+    <ListView
+        android:id="@+id/convert_main_experts_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/text_experts"
+        />
+    <TextView
+        android:id="@+id/text_leaders"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:textColor="@color/white"
+        android:background="@color/colorPrimary"
+        android:textStyle="bold"
+        android:gravity="center_vertical|left"
+        android:paddingLeft="12dp"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:text="@string/leaderboard"
+        app:layout_constraintTop_toBottomOf="@+id/convert_main_experts_list"/>
+    <ListView
+        android:id="@+id/convert_main_leaders_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@+id/text_leaders"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
