@@ -147,10 +147,12 @@ class TickerDataAccess:
         return error_cnt / len(df)
 
     def load(self, symbol, type, date=None):
-        filename = self.__ticker_filename(self, symbol, type, date)
-        reader = csv.reader(self.storage.get(filename), delimiter=',')
-        next(reader, None)  # skip the headers
-        return [Ticker(type, symbol, datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S'), row[1], row[2], row[3], row[4], row[5]) for row in reader]
+        filename = self.__ticker_filename(symbol, type, date)
+        f = self.storage.get(filename).split()
+        reader = csv.reader(f, skipinitialspace=False,delimiter=',', quoting=csv.QUOTE_NONE)
+        header = next(reader, None)  # skip the headers
+        header = next(reader, None)  # skip the headers
+        return [Ticker(type, symbol, datetime.strptime(row[0], '%Y-%m-%d'), row[1], row[2], row[3], row[4], row[5]) for row in reader]
 
     def symbols2update(self, type, limit):
         file = self.__update_filename(type)

@@ -23,7 +23,7 @@ args = parser.parse_args()
 APP = AppContext()
 
 date = args.date if args.date is not None else datetime.today()
-stocks = APP.load_stocks(args.stock)
+stocks = [APP.load_stocks(args.stock)]
 signals = []
 
 with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
