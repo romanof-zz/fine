@@ -11,8 +11,7 @@ from stocks.access import StockDataAccess, TickerDataAccess
 from stocks.analyzers import TickerAnalyzer
 from stocks.models import Ticker, TickerAnalysisStats
 
-from bets.models import Signal
-from bets.simulator import Simulator
+from bets.controllers import BetProcessor
 
 from sentiment.access import TwitterDataAccess
 from sentiment.analyzers import SentimentAnalyzer
@@ -26,6 +25,7 @@ class AppContext:
         self.__taccess = None
         self.__saccess = None
         self.__twaccess = None
+        self.__s3 = None
 
         self.logger = logging.getLogger()
         if self.logger.handlers:
@@ -33,10 +33,12 @@ class AppContext:
                 self.logger.removeHandler(handler)
         logging.basicConfig(format='[%(levelname)s][%(asctime)s]: %(message)s',level=logging.INFO)
 
-        self.s3 = LocalCachedS3Storage(self.APP_BUCKET, os.environ.get('FINE_CACHE_ENABLED', False))
+    def __s3_storage(self):
+        if self.__s3 is None: self.__s3 = LocalCachedS3Storage(self.APP_BUCKET, os.environ.get('FINE_CACHE_ENABLED', False))
+        return self.__s3
 
     def __ticker_access(self):
-        if self.__taccess is None: self.__taccess = TickerDataAccess(self.s3, self.logger)
+        if self.__taccess is None: self.__taccess = TickerDataAccess(self.__s3_storage(), self.logger)
         return self.__taccess
 
     def __stock_access(self):
@@ -45,7 +47,8 @@ class AppContext:
 
     def __twitter_access(self):
         if self.__twaccess is None:
-            self.__twaccess = TwitterDataAccess(self.s3, self.logger,
+            self.__twaccess = TwitterDataAccess(self.__s3_storage(),
+                self.logger,
                 os.environ.get('FINE_TWEETER_CONSUMER_KEY', ''),
                 os.environ.get('FINE_TWEETER_CONSUMER_SECRET', ''),
                 os.environ.get('FINE_TWEETER_ACCESS_TOKEN', ''),
@@ -56,15 +59,15 @@ class AppContext:
         return self.__stock_access().load_all() if symbol is None else self.__stock_access().load_one(symbol)
 
     def analyze_timeframe(self, stock, period, function, threshold, date, interval, frame, invert):
-        signals = []
+        bets = []
         tickers = self.load_tickers(stock)
         for d in range(0, interval):
-            signal = self.analyze(list(filter(lambda t: t.time <= date - timedelta(days=d), tickers)),
+            bet = self.analyze(list(filter(lambda t: t.time <= date - timedelta(days=d), tickers)),
                 period, function, threshold, frame, invert)
-            if signal: signals.append(signal)
+            if bet: bets.append(bet)
 
-        self.logger.info("loaded {} tickers & produced {} signals for {}".format(len(tickers), len(signals), stock.symbol))
-        return signals
+        self.logger.info("loaded {} tickers & produced {} signals for {}".format(len(tickers), len(bets), stock.symbol))
+        return bets
 
     def analyze(self, tickers, period, function, threshold, frame, invert):
         results = TickerAnalyzer(tickers, self.logger, frame).analyze(period, function)
@@ -79,10 +82,10 @@ class AppContext:
         # sort by chance, sample size and highest gain accordingly.
         stats = sorted(stats, key = lambda s: (s.chance, s.count, s.percent_change), reverse=True)
 
-        return Signal.from_ticker_stat(stats[0], invert) if len(stats) else None
+        return BetProcessor.bet_from_ticker_stat(stats[0], invert) if len(stats) else None
 
-    def simulate(self, signal):
-        return Simulator(self.logger, self.__ticker_access()).simulate(signal)
+    def simulate(self, bet):
+        return BetProcessor(self.logger, self.__ticker_access()).check_bet(bet)
 
     def load_tickers(self, stock):
         return self.__ticker_access().load(stock.symbol, Ticker.Type.ONE_DAY)

@@ -3,6 +3,7 @@ from datetime import datetime
 
 # time formatting
 DATE_FORMAT = '%Y-%m-%d'
+TIME_FORMAT = '%Y-%m-%d %H:%M:%S%z'
 
 # args date validation
 def valid_date(s):

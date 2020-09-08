@@ -5,7 +5,7 @@ from botocore.exceptions import ClientError
 import pandas as pd
 import yfinance as yf
 
-from util import DATE_FORMAT
+from util import DATE_FORMAT, TIME_FORMAT
 from .symbols import US_SYMBOLS
 from .models import Ticker, Stock
 
@@ -153,7 +153,8 @@ class TickerDataAccess:
                             delimiter=',',
                             quoting=csv.QUOTE_NONE)
         next(reader, None)  # skip the headers
-        return [Ticker(type, symbol, datetime.strptime(row[0], '%Y-%m-%d'), row[1], row[2], row[3], row[4], row[5]) for row in reader]
+        format = TIME_FORMAT if type in (Ticker.Type.ONE_HOUR, Ticker.Type.FIVE_MIN, Ticker.Type.ONE_MIN) else DATE_FORMAT
+        return [Ticker(type, symbol, datetime.strptime(row[0], format), row[1], row[2], row[3], row[4], row[5]) for row in reader]
 
     def symbols2update(self, type, limit):
         file = self.__update_filename(type)

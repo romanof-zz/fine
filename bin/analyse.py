@@ -4,7 +4,7 @@ import sys
 import concurrent.futures
 from datetime import datetime
 
-from bets.models import Signal
+from bets.models import Bet
 from app import AppContext
 from util import valid_date
 
@@ -24,21 +24,22 @@ APP = AppContext()
 
 date = args.date if args.date is not None else datetime.today()
 stocks = APP.load_stocks(args.stock)
-signals = []
+bets = []
 
 with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
     future_to_signals = {executor.submit(APP.analyze_timeframe,
         stock, args.period, args.function, args.threshold, date, args.interval, args.frame, args.invert):
         stock.symbol for stock in stocks}
-    for future in concurrent.futures.as_completed(future_to_signals): signals += future.result()
+    for future in concurrent.futures.as_completed(future_to_signals): bets += future.result()
 
 if args.simulate:
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-        [executor.submit(APP.simulate, signal) for signal in signals]
+        [executor.submit(APP.simulate, bet) for bet in bets]
 
-APP.logger.info(yaml.dump(signals))
-APP.logger.info("total {}".format(len(signals)))
-APP.logger.info("unknown {}".format(len(list(filter(lambda s: s.exit_status == Signal.Status.UNKNOWN, signals)))))
-APP.logger.info("success {}".format(len(list(filter(lambda s: s.exit_status == Signal.Status.SUCCESS, signals)))))
-APP.logger.info("failure {}".format(len(list(filter(lambda s: s.exit_status == Signal.Status.FAILURE, signals)))))
-APP.logger.info("expired {}".format(len(list(filter(lambda s: s.exit_status == Signal.Status.EXPIRED, signals)))))
+APP.logger.info(yaml.dump(bets))
+APP.logger.info("total({}) = unknown({}) + success({}) + failure({}) + expired({})".format(
+    len(bets),
+    len(list(filter(lambda b: b.status == Bet.Status.UNKNOWN, bets))),
+    len(list(filter(lambda b: b.status == Bet.Status.SUCCESS, bets))),
+    len(list(filter(lambda b: b.status == Bet.Status.FAILURE, bets))),
+    len(list(filter(lambda b: b.status == Bet.Status.EXPIRED, bets)))))
