@@ -14,7 +14,7 @@ class StockDataAccess:
         return map(lambda s: Stock(s, None, None, None, None), US_SYMBOLS)
 
     def load_one(self, symbol):
-        return Stock(symbol, None, None, None, None)
+        return map(lambda s: Stock(s, None, None, None, None), [symbol])
 
 class TickerDataAccess:
     DIR = "tickers"
