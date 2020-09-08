@@ -1,7 +1,7 @@
-import io
 import os
 import sys
 import boto3
+from io import StringIO
 
 from botocore.exceptions import ReadTimeoutError
 
@@ -34,7 +34,7 @@ class LocalCachedS3Storage:
                 obj = self.s3.Object(self.bucket, key)
                 data = obj.get()['Body'].read().decode('utf-8')
                 if self.cache_enabled: self.__write_local(key, data)
-                return data
+                return StringIO(data)
             except ReadTimeoutError:
                 retry_count+=1
                 sleep(self.RETRY_WAIT * retry_count)
