@@ -9,7 +9,7 @@ from .models import Tweet
 class TwitterDataAccess:
     DIR = "tweets"
     LAST_POINTER = "$LAST"
-    TIME_FORMAT = '%a %b %d %H:%M:%S %z %Y'
+    TWITTER_TIME_FORMAT = '%a %b %d %H:%M:%S %z %Y'
 
     def __init__(self, storage, logger, consumer_key, consumer_secret, access_token_key, access_token_secret):
         self.storage = storage
@@ -28,7 +28,7 @@ class TwitterDataAccess:
                                             since_id=self.__last_updated(user.screen_name),
                                             count=200)
 
-        tweets = map(lambda s: Tweet(s.id_str, s.user.screen_name, datetime.strptime(s.created_at, self.TIME_FORMAT), s.text, s.lang, s.retweet_count, s.hashtags), statuses)
+        tweets = map(lambda s: Tweet(s.id_str, s.user.screen_name, datetime.strptime(s.created_at, self.TWITTER_TIME_FORMAT), s.text, s.lang, s.retweet_count, s.hashtags), statuses)
         tweets = sorted(tweets, key=lambda x: x.time)
         self.logger.info("{} new tweets loaded for {}".format(len(tweets), user.screen_name))
 
