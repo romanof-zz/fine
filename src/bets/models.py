@@ -1,4 +1,9 @@
+import time
+from random import randrange
+
 class Bet:
+    ID_PREFIX = 'fine.bet'
+
     class Status:
         UNKNOWN = "unknown"
         SUCCESS = "success"
@@ -10,6 +15,9 @@ class Bet:
         SELL = 'sell'
 
     def __init__(self, symbol, type, info, event_time, event_price, target_time, target_price, limit_price):
+        # id generation
+        self.id = f"{self.ID_PREFIX}.{time.time()}.{randrange(1000, 9999)}"
+
         # general
         self.symbol = symbol
         self.type = type

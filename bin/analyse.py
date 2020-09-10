@@ -14,6 +14,7 @@ parser.add_argument("-f", "--frame", type=int, help="result frame")
 parser.add_argument("-p", "--period", help="analysis period")
 parser.add_argument("-fn", "--function", help="analysis function")
 parser.add_argument("--no-simulate", dest="simulate", default=True, action="store_false", help="simulate created bets")
+parser.add_argument("--store-bets", dest="stote_bets", default=False, action="store_true", help="store simulated bets")
 parser.add_argument("--inv", dest="invert", default=False, action="store_true", help="invert reaction")
 parser.add_argument("-s", "--stock", help="stock to analize")
 parser.add_argument("-d", "--date", type=valid_date, help="run analysis with a given date as a start date")
@@ -33,8 +34,9 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
     for future in concurrent.futures.as_completed(future_to_signals): bets += future.result()
 
 if args.simulate:
+    # for bet in bets: APP.simulate(bet)
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-        [executor.submit(APP.simulate, bet) for bet in bets]
+        [executor.submit(APP.simulate, bet, args.stote_bets) for bet in bets]
 
 APP.logger.info(yaml.dump(bets))
 APP.logger.info("total({}) = unknown({}) + success({}) + failure({}) + expired({})".format(

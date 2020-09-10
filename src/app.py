@@ -12,6 +12,7 @@ from stocks.analyzers import TickerAnalyzer
 from stocks.models import Ticker, TickerAnalysisStats
 
 from bets.controllers import BetProcessor
+from bets.access import BetDataAccess
 
 from sentiment.access import TwitterDataAccess
 from sentiment.analyzers import SentimentAnalyzer
@@ -22,9 +23,11 @@ class AppContext:
     APP_PKG_NAME = "lambda.zip"
 
     def __init__(self):
-        self.__taccess = None
-        self.__saccess = None
-        self.__twaccess = None
+        self.__ticker__access = None
+        self.__stock__access = None
+        self.__twitter__access = None
+        self.__bet__access = None
+
         self.__s3 = None
 
         self.logger = logging.getLogger()
@@ -38,22 +41,26 @@ class AppContext:
         return self.__s3
 
     def __ticker_access(self):
-        if self.__taccess is None: self.__taccess = TickerDataAccess(self.__s3_storage(), self.logger)
-        return self.__taccess
+        if self.__ticker__access is None: self.__ticker__access = TickerDataAccess(self.__s3_storage(), self.logger)
+        return self.__ticker__access
 
     def __stock_access(self):
-        if self.__saccess is None: self.__saccess = StockDataAccess()
-        return self.__saccess
+        if self.__stock__access is None: self.__stock__access = StockDataAccess()
+        return self.__stock__access
+
+    def __bet_access(self):
+        if self.__bet__access is None: self.__bet__access = BetDataAccess(self.logger)
+        return self.__bet__access
 
     def __twitter_access(self):
-        if self.__twaccess is None:
-            self.__twaccess = TwitterDataAccess(self.__s3_storage(),
+        if self.__twitter__access is None:
+            self.__twitter__access = TwitterDataAccess(self.__s3_storage(),
                 self.logger,
                 os.environ.get('FINE_TWEETER_CONSUMER_KEY', ''),
                 os.environ.get('FINE_TWEETER_CONSUMER_SECRET', ''),
                 os.environ.get('FINE_TWEETER_ACCESS_TOKEN', ''),
                 os.environ.get('FINE_TWEETER_ACCESS_SECRET', ''))
-        return self.__twaccess
+        return self.__twitter__access
 
     def load_stocks(self, symbol):
         return self.__stock_access().load_all() if symbol is None else self.__stock_access().load_one(symbol)
@@ -84,7 +91,8 @@ class AppContext:
 
         return BetProcessor.bet_from_ticker_stat(stats[0], invert) if len(stats) else None
 
-    def simulate(self, bet):
+    def simulate(self, bet, save=False):
+        if save: self.__bet_access().put(bet)
         return BetProcessor(self.logger, self.__ticker_access()).check_bet(bet)
 
     def load_tickers(self, stock):
