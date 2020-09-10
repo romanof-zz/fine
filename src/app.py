@@ -4,7 +4,6 @@ import boto3
 
 from datetime import timedelta
 
-
 from storage import LocalCachedS3Storage
 
 from stocks.access import StockDataAccess, TickerDataAccess
@@ -17,24 +16,33 @@ from bets.access import BetDataAccess
 from sentiment.access import TwitterDataAccess
 from sentiment.analyzers import SentimentAnalyzer
 
-class AppContext:
-    APP_BUCKET = "fine.data"
-    APP_BUILDS = "fine.builds"
-    APP_PKG_NAME = "lambda.zip"
-
+class Context:
     def __init__(self):
-        self.__ticker__access = None
-        self.__stock__access = None
-        self.__twitter__access = None
-        self.__bet__access = None
-
-        self.__s3 = None
+        self.__bet_access = None
 
         self.logger = logging.getLogger()
         if self.logger.handlers:
             for handler in self.logger.handlers:
                 self.logger.removeHandler(handler)
         logging.basicConfig(format='[%(levelname)s][%(asctime)s]: %(message)s',level=logging.INFO)
+
+    def bet_access(self):
+        if self.__bet_access is None: self.__bet_access = BetDataAccess(self.logger)
+        return self.__bet_access
+
+class AppContext(Context):
+    APP_BUCKET = "fine.data"
+    APP_BUILDS = "fine.builds"
+    APP_PKG_NAME = "lambda.zip"
+
+    def __init__(self):
+        super().__init__()
+
+        self.__ticker__access = None
+        self.__stock__access = None
+        self.__twitter__access = None
+
+        self.__s3 = None
 
     def __s3_storage(self):
         if self.__s3 is None: self.__s3 = LocalCachedS3Storage(self.APP_BUCKET, os.environ.get('FINE_CACHE_ENABLED', False))
@@ -47,10 +55,6 @@ class AppContext:
     def __stock_access(self):
         if self.__stock__access is None: self.__stock__access = StockDataAccess()
         return self.__stock__access
-
-    def __bet_access(self):
-        if self.__bet__access is None: self.__bet__access = BetDataAccess(self.logger)
-        return self.__bet__access
 
     def __twitter_access(self):
         if self.__twitter__access is None:
@@ -92,7 +96,7 @@ class AppContext:
         return BetProcessor.bet_from_ticker_stat(stats[0], invert) if len(stats) else None
 
     def simulate(self, bet, save=False):
-        if save: self.__bet_access().put(bet)
+        if save: self.bet_access().put(bet)
         return BetProcessor(self.logger, self.__ticker_access()).check_bet(bet)
 
     def load_tickers(self, stock):

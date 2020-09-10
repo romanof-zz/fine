@@ -1,8 +1,10 @@
+import operator
+
 from datetime import timedelta, datetime
 from botocore.exceptions import ClientError
 from .models import Bet
+from .access import BetDataAccess
 from util import DATE_FORMAT
-import operator
 from stocks.models import Ticker, TickerAnalysisStats
 
 class BetProcessor:
@@ -96,5 +98,8 @@ class BetProcessor:
                 days+=1
 
 class BetsController:
+    def __init__(self, access):
+        self.access = access
+
     def all(self):
-        return []
+        return self.access.load_all()

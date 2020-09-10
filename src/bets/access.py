@@ -1,5 +1,6 @@
-import yaml
+import json
 import boto3
+from .models import Bet
 
 class BetDataAccess:
     def __init__(self, logger):
@@ -14,7 +15,11 @@ class BetDataAccess:
             TableName = self.table_name,
             Item = {
                 'id': {'S': bet.id },
-                'data': {'S': yaml.dump(bet)}
+                'data': {'S': json.dumps(bet.__dict__, indent=4, sort_keys=True, default=str)}
             })
         self.logger.info(res)
-        return result
+        return res
+
+    def load_all(self):
+        response = self.client.scan(TableName = self.table_name)
+        return [item['data'] for item in response['Items']]
