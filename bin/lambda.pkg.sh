@@ -7,12 +7,14 @@ chmod -R 755 lambda &&
 
 echo "== copy linux numpy and pandas ==" &&
 # download latest from: https://pypi.org/project/numpy/#files
-cp bin/numpy-1.16.4-cp37-cp37m-manylinux1_x86_64.whl lambda &&
+cp bin/numpy-1.19.2-cp37-cp37m-manylinux1_x86_64.whl lambda &&
 # download latest from: https://pypi.org/project/pandas/#files
-cp bin/pandas-0.25.0-cp37-cp37m-manylinux1_x86_64.whl lambda &&
+cp bin/pandas-1.1.2-cp37-cp37m-manylinux1_x86_64.whl lambda &&
+# download latest from: https://pypi.org/project/regex/#files
+cp bin/regex-2020.7.14-cp37-cp37m-manylinux1_x86_64.whl lambda &&
 
 echo "== install dependencies ==" &&
-pip install -Ur requirements.txt -t lambda &&
+pip3.7 install -Ur requirements.txt -t lambda &&
 
 cd lambda &&
 # @link https://medium.com/@korniichuk/lambda-with-pandas-fd81aa2ff25e
@@ -24,8 +26,9 @@ echo "== removing numpy ==" &&
 sudo rm -rf *.dist-info &&
 
 echo "== unpacking numpy & pandas ==" &&
-unzip numpy-1.16.4-cp37-cp37m-manylinux1_x86_64.whl &&
-unzip pandas-0.25.0-cp37-cp37m-manylinux1_x86_64.whl &&
+unzip numpy-1.19.2-cp37-cp37m-manylinux1_x86_64.whl &&
+unzip pandas-1.1.2-cp37-cp37m-manylinux1_x86_64.whl &&
+unzip regex-2020.7.14-cp37-cp37m-manylinux1_x86_64.whl &&
 
 echo "== cleaning lambda dir before zipping ==" &&
 sudo rm -rf *.whl *.dist-info __pycache__ &&

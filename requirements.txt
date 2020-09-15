@@ -1,4 +1,5 @@
 pyyaml
+regex
 boto3
 python-twitter
 numpy==1.16.4
