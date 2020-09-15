@@ -16,4 +16,4 @@ class ApiContext(Context):
         return self.__bets_controller().all()
 
 def lambda_bets_all(event, context):
-    return { 'resultCode': 200, 'data': ApiContext().bets_all() }
+    return ApiContext().bets_all()

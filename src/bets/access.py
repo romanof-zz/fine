@@ -22,4 +22,4 @@ class BetDataAccess:
 
     def load_all(self):
         response = self.client.scan(TableName = self.table_name)
-        return [item['data'] for item in response['Items']]
+        return [json.loads(item['data']['S']) for item in response['Items']]
