@@ -32,8 +32,6 @@ class Context:
 
 class AppContext(Context):
     APP_BUCKET = "fine.data"
-    APP_BUILDS = "fine.builds"
-    APP_PKG_NAME = "lambda.zip"
 
     def __init__(self):
         super().__init__()
@@ -157,22 +155,4 @@ def lambda_twitter_update(event, context):
     app.logger.info("started twitter update")
     app.twitter_update()
     app.logger.info("finished twitter update")
-    return {'resultCode': 200}
-
-APPLOGIC_LAMBDA_NAMES = ["deployment", "update_twitter", "update_options", "update_5m_tickers",
-    "update_1d_tickers", "update_1h_tickers", "update_1m_tickers"]
-
-def lambda_finalize_deployment(event, context):
-    app = AppContext()
-    bucket = event['Records'][0]['s3']['bucket']['name']
-    key = event['Records'][0]['s3']['object']['key']
-
-    if bucket == app.APP_BUILDS and key == app.APP_PKG_NAME:
-        app.logger.info(f"triggeed deplyment for {bucket}:{key}")
-        client = boto3.client('lambda')
-        for fname in APPLOGIC_LAMBDA_NAMES:
-            client.update_function_code(FunctionName=fname, S3Bucket=bucket, S3Key=key)
-            app.logger.info(f"finished deplyment for {fname}")
-
-    app.logger.info("finished all deplyments.")
     return {'resultCode': 200}
