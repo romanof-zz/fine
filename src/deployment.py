@@ -1,3 +1,5 @@
+import boto3
+
 # build s3 bucket
 APP_BUILDS = "fine.builds"
 # lambda pkg file name. product of bin/lambda.sh
